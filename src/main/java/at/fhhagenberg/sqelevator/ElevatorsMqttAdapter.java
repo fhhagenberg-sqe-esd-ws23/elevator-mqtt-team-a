@@ -1,10 +1,9 @@
 package at.fhhagenberg.sqelevator;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.rmi.RemoteException;
+import java.util.Arrays;
 
-public class ElevatorsMqttAdapter implements PropertyChangeListener {
+public class ElevatorsMqttAdapter {
 
 	private Elevator[] elevators;
 	private Floor[] floors;
@@ -21,13 +20,11 @@ public class ElevatorsMqttAdapter implements PropertyChangeListener {
 		
 		for(int elevator = 0; elevator < elevators.length; ++elevator) {
 			elevators[elevator] = new Elevator(plc, elevator);
-			elevators[elevator].addPropertyChangeListener(this);
 			elevatorUpdaters[elevator] = new ElevatorUpdater(elevators[elevator]);
 		}
 		
 		for(int floor = 0; floor < floors.length; ++floor) {
 			floors[floor] = new Floor(plc, floor);
-			floors[floor].addPropertyChangeListener(this);
 			floorUpdaters[floor] = new FloorUpdater(floors[floor]);
 		}
 		
@@ -52,10 +49,21 @@ public class ElevatorsMqttAdapter implements PropertyChangeListener {
 			}
 		}
 	}
+	
+	public Elevator[] getElevators() {
+		return Arrays.copyOf(elevators, elevators.length);
+	}
 
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		// TODO: React to property changes in elevators and floors and send MQTT messages
+	public Floor[] getFloors() {
+		return Arrays.copyOf(floors, floors.length);
+	}
+
+	public ElevatorUpdater[] getElevatorUpdaters() {
+		return Arrays.copyOf(elevatorUpdaters, elevatorUpdaters.length);
+	}
+
+	public FloorUpdater[] getFloorUpdaters() {
+		return Arrays.copyOf(floorUpdaters, floorUpdaters.length);
 	}
 	
 }
