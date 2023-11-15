@@ -7,39 +7,33 @@ public class ElevatorsMqttAdapter {
 
 	private Elevator[] elevators;
 	private Floor[] floors;
-	private ElevatorUpdater[] elevatorUpdaters;
-	private FloorUpdater[] floorUpdaters;
+	private IUpdater[] updaters;
 	
 	public ElevatorsMqttAdapter(IElevator plc) throws RemoteException {
 		int numElevators = plc.getElevatorNum();
 		int numFloors = plc.getFloorNum();
 		elevators = new Elevator[numElevators];
-		elevatorUpdaters = new ElevatorUpdater[elevators.length];
 		floors = new Floor[numFloors];
-		floorUpdaters = new FloorUpdater[floors.length];
+		updaters = new IUpdater[elevators.length + floors.length];
 		
-		for(int elevator = 0; elevator < elevators.length; ++elevator) {
-			elevators[elevator] = new Elevator(plc, elevator);
-			elevatorUpdaters[elevator] = new ElevatorUpdater(elevators[elevator]);
+		for(int i = 0; i < elevators.length; ++i) {
+			Elevator elevator = new Elevator(plc, i);
+			elevators[i] = elevator;
+			updaters[i] = new ElevatorUpdater(elevator);
 		}
 		
-		for(int floor = 0; floor < floors.length; ++floor) {
-			floors[floor] = new Floor(plc, floor);
-			floorUpdaters[floor] = new FloorUpdater(floors[floor]);
+		for(int i = 0; i < floors.length; ++i) {
+			Floor floor = new Floor(plc, i);
+			floors[i] = floor;
+			updaters[numElevators + i] = new FloorUpdater(floor);
 		}
-		
-		// TODO: Send initial MQTT messages
 	}
 	
 	public void run() throws RemoteException {
 		
 		while(true) {
-			for(int elevator = 0; elevator < elevators.length; ++elevator) {
-				elevatorUpdaters[elevator].update();
-			}
-			
-			for(int floor = 0; floor < floors.length; ++floor) {
-				floorUpdaters[floor].update();
+			for(IUpdater updater : updaters) {
+				updater.update();
 			}
 			
 			try {
@@ -58,12 +52,8 @@ public class ElevatorsMqttAdapter {
 		return Arrays.copyOf(floors, floors.length);
 	}
 
-	public ElevatorUpdater[] getElevatorUpdaters() {
-		return Arrays.copyOf(elevatorUpdaters, elevatorUpdaters.length);
-	}
-
-	public FloorUpdater[] getFloorUpdaters() {
-		return Arrays.copyOf(floorUpdaters, floorUpdaters.length);
+	public IUpdater[] getUpdaters() {
+		return Arrays.copyOf(updaters, updaters.length);
 	}
 	
 }

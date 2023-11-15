@@ -2,7 +2,7 @@ package at.fhhagenberg.sqelevator;
 
 import java.rmi.RemoteException;
 
-public class FloorUpdater {
+public class FloorUpdater implements IUpdater {
 	
 	private Floor floor;
 	private IElevator plc;
