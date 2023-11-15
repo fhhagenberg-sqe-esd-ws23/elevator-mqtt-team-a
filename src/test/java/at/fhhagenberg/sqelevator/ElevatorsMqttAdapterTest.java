@@ -17,7 +17,17 @@ class ElevatorsMqttAdapterTest {
 		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(plc);
 		
 		assertEquals(4, adapter.getElevators().length);
-
+	}
+	
+	@Test
+	void testNumberOfUpdaters() throws RemoteException {
+		IElevator plc = mock(IElevator.class);
+		when(plc.getElevatorNum()).thenReturn(4);
+		when(plc.getFloorNum()).thenReturn(5);
+		
+		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(plc);
+		
+		assertEquals(9, adapter.getUpdaters().length);
 	}
 
 }
