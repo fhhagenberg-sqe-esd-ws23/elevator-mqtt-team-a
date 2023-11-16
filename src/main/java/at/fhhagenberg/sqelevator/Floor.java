@@ -21,6 +21,11 @@ public class Floor {
 		this.plc = plc;
 		this.number = number;
 		
+		if(plc == null)
+		{
+			throw new IllegalArgumentException("Plc must be valid!"); 
+		}
+		
 		this.setButtonDown(plc.getFloorButtonDown(number));
 		this.setButtonUp(plc.getFloorButtonUp(number));
 	}
@@ -63,7 +68,6 @@ public class Floor {
 			boolean oldValue = this.buttonUp;
 			this.buttonUp = buttonUp;
 			this.pcs.firePropertyChange(BUTTON_UP_PROPERTY_NAME, oldValue, buttonUp);
-			
 		}
 	}
 
