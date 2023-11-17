@@ -7,16 +7,16 @@ import java.rmi.RemoteException;
 
 import org.junit.jupiter.api.Test;
 
-class ElevatorsMqttAdapterTest {
+class BuildingTest {
 
 	@Test
 	void testNumberOfElevators() throws RemoteException {
 		IElevator plc = mock(IElevator.class);
 		when(plc.getElevatorNum()).thenReturn(4);
 		
-		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(plc);
+		Building building = new Building(plc);
 		
-		assertEquals(4, adapter.getElevators().length);
+		assertEquals(4, building.getElevators().length);
 	}
 	
 	@Test
@@ -25,9 +25,9 @@ class ElevatorsMqttAdapterTest {
 		when(plc.getElevatorNum()).thenReturn(4);
 		when(plc.getFloorNum()).thenReturn(5);
 		
-		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(plc);
+		Building building = new Building(plc);
 		
-		assertEquals(9, adapter.getUpdaters().length);
+		assertEquals(9, building.getUpdaters().length);
 	}
 	
 	@Test
@@ -35,9 +35,9 @@ class ElevatorsMqttAdapterTest {
 		IElevator plc = mock(IElevator.class);
 		when(plc.getFloorNum()).thenReturn(7);
 		
-		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(plc);
+		Building building = new Building(plc);
 		
-		assertEquals(7, adapter.getFloors().length);
+		assertEquals(7, building.getFloors().length);
 	}
 
 }

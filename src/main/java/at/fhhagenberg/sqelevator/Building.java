@@ -3,13 +3,13 @@ package at.fhhagenberg.sqelevator;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 
-public class ElevatorsMqttAdapter {
+public class Building {
 
 	private Elevator[] elevators;
 	private Floor[] floors;
 	private IUpdater[] updaters;
 	
-	public ElevatorsMqttAdapter(IElevator plc) throws RemoteException {
+	public Building(IElevator plc) throws RemoteException {
 		int numElevators = plc.getElevatorNum();
 		int numFloors = plc.getFloorNum();
 		elevators = new Elevator[numElevators];
@@ -29,18 +29,9 @@ public class ElevatorsMqttAdapter {
 		}
 	}
 	
-	public void run() throws RemoteException {
-		
-		while(true) {
-			for(IUpdater updater : updaters) {
-				updater.update();
-			}
-			
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+	public void update() throws RemoteException {		
+		for(IUpdater updater : updaters) {
+			updater.update();
 		}
 	}
 	
