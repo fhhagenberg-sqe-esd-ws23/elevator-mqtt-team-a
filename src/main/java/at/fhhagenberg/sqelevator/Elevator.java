@@ -47,6 +47,10 @@ public class Elevator {
 	
 	public Elevator(IElevator plc, int number) throws RemoteException
 	{
+		if (number < 0) {
+			throw new IllegalArgumentException("The number of the Elevator must be >=0!");
+		}
+		
 		this.plc = plc;
 		this.number = number;
 		numberOfFloors = plc.getFloorNum();
@@ -97,6 +101,11 @@ public class Elevator {
 	}
 
 	public void setCommittedDirection(int committedDirection) throws RemoteException {
+		if (committedDirection != IElevator.ELEVATOR_DIRECTION_DOWN
+				&& committedDirection != IElevator.ELEVATOR_DIRECTION_UP
+				&& committedDirection != IElevator.ELEVATOR_DIRECTION_UNCOMMITTED) {
+			throw new IllegalArgumentException("The commited direction must be 0, 1 or2!");
+		}
 		if(this.committedDirection != committedDirection) {
 			plc.setCommittedDirection(getNumber(), committedDirection);
 			int oldValue = this.committedDirection;
