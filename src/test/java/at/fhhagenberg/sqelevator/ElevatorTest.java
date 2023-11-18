@@ -258,7 +258,7 @@ class ElevatorTest {
 		Elevator elevator = new Elevator(plc, 0);
 
 		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-				() -> elevator.getStopRequest(18));
+				() -> elevator.getStopRequest(15));
 
 		assertEquals("Invalid floor", thrown.getMessage());
 	}
@@ -293,7 +293,7 @@ class ElevatorTest {
 		Elevator elevator = new Elevator(plc, 0);
 
 		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-				() -> elevator.setStopRequest(18, true));
+				() -> elevator.setStopRequest(15, true));
 
 		assertEquals("Invalid floor", thrown.getMessage());
 	}
@@ -477,7 +477,7 @@ class ElevatorTest {
 
 		Elevator elevator = new Elevator(plc, 0);
 
-		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> elevator.setFloor(10));
+		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> elevator.setFloor(5));
 		assertEquals("Invalid floor!", thrown.getMessage());
 	}
 
@@ -732,6 +732,22 @@ class ElevatorTest {
 		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> elevator.setWeight(-2));
 		assertEquals("The weight can't be negative!", thrown.getMessage());
 	}
+	
+	@Test
+	void testWeightChanged() throws RemoteException {
+		IElevator plc = mock(IElevator.class);
+		when(plc.getElevatorWeight(0)).thenReturn(0);
+		when(plc.getFloorNum()).thenReturn(10);
+		PropertyChangeListener listener = mock(PropertyChangeListener.class);
+
+		Elevator elevator = new Elevator(plc, 0);
+		elevator.addPropertyChangeListener(listener);
+		elevator.setWeight(30);
+
+		verify(listener, times(1))
+				.propertyChange(argThat(event -> event.getPropertyName() == Elevator.WEIGHT_PROPERTY_NAME
+						&& (int) event.getOldValue() == 0 && (int) event.getNewValue() == 30));
+	}
 
 	@Test
 	void testGetServicesFloor_NegativeFloor() throws RemoteException {
@@ -753,7 +769,7 @@ class ElevatorTest {
 		Elevator elevator = new Elevator(plc, 0);
 
 		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-				() -> elevator.getServicesFloor(12));
+				() -> elevator.getServicesFloor(10));
 		assertEquals("Invalid floor", thrown.getMessage());
 	}
 
@@ -787,7 +803,7 @@ class ElevatorTest {
 		Elevator elevator = new Elevator(plc, 0);
 
 		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-				() -> elevator.setServicesFloor(18, true));
+				() -> elevator.setServicesFloor(15, true));
 		assertEquals("Invalid floor", thrown.getMessage());
 	}
 
@@ -872,7 +888,7 @@ class ElevatorTest {
 
 		Elevator elevator = new Elevator(plc, 0);
 
-		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> elevator.setTarget(10));
+		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> elevator.setTarget(5));
 		assertEquals("Invalid floor", thrown.getMessage());
 	}
 
@@ -919,5 +935,50 @@ class ElevatorTest {
 		verify(listener, times(1))
 				.propertyChange(argThat(event -> event.getPropertyName() == Elevator.TARGET_PROPERTY_NAME
 						&& (int) event.getOldValue() == 0 && (int) event.getNewValue() == 1));
+	}
+	
+	@Test
+	void testElevatorAddPropertyChangeListenerTwoTimes_thenRemoveOneAfterFirstEvent() throws RemoteException {
+		IElevator plc = mock(IElevator.class);
+		when(plc.getTarget(0)).thenReturn(0);
+		when(plc.getFloorNum()).thenReturn(10);
+		PropertyChangeListener listener = mock(PropertyChangeListener.class);
+
+		Elevator elevator = new Elevator(plc, 0);
+		elevator.addPropertyChangeListener(listener);
+		elevator.addPropertyChangeListener(listener);
+		
+		elevator.setTarget(1);
+		verify(listener, times(2))
+		.propertyChange(argThat(event -> event.getPropertyName() == Elevator.TARGET_PROPERTY_NAME
+				&& (int) event.getOldValue() == 0 && (int) event.getNewValue() == 1));
+		
+		elevator.removePropertyChangeListener(listener);
+		elevator.setTarget(2);
+		verify(listener, times(1))
+				.propertyChange(argThat(event -> event.getPropertyName() == Elevator.TARGET_PROPERTY_NAME
+						&& (int) event.getOldValue() == 1 && (int) event.getNewValue() == 2));
+	}
+	
+	@Test
+	void testGetStopRequest_SomeStops() throws RemoteException {
+		IElevator plc = mock(IElevator.class);
+		when(plc.getFloorNum()).thenReturn(5);
+		when(plc.getElevatorButton(0, 0)).thenReturn(true);
+		
+		Elevator elevator = new Elevator(plc, 0);
+		
+		assertTrue(elevator.getStopRequest(0));
+	}
+	
+	@Test
+	void testGetServicesFloor_SomeServices() throws RemoteException {
+		IElevator plc = mock(IElevator.class);
+		when(plc.getFloorNum()).thenReturn(5);
+		when(plc.getServicesFloors(0, 0)).thenReturn(true);
+		
+		Elevator elevator = new Elevator(plc, 0);
+		
+		assertTrue(elevator.getServicesFloor(0));
 	}
 }
