@@ -47,6 +47,9 @@ public class Elevator {
 	
 	public Elevator(IElevator plc, int number) throws RemoteException
 	{
+		if(plc == null) {
+			throw new IllegalArgumentException("Plc must be valid!"); 
+		}
 		if (number < 0) {
 			throw new IllegalArgumentException("The number of the Elevator must be >=0!");
 		}
@@ -128,7 +131,7 @@ public class Elevator {
 	
 	public boolean getStopRequest(int floor) {
 		if(floor < 0 || floor >= numberOfFloors) {
-			throw new RuntimeException("Invalid floor");
+			throw new IllegalArgumentException("Invalid floor");
 		}
 		
 		return this.stopRequests[floor];
@@ -136,7 +139,7 @@ public class Elevator {
 	
 	public void setStopRequest(int floor, boolean stop) {
 		if(floor < 0 || floor >= numberOfFloors) {
-			throw new RuntimeException("Invalid floor");
+			throw new IllegalArgumentException("Invalid floor");
 		}
 		
 		if(this.stopRequests[floor] != stop) {
@@ -175,6 +178,9 @@ public class Elevator {
 	}
 
 	public void setFloor(int floor) {
+		if (floor < 0 || floor >= numberOfFloors) {
+			throw new IllegalArgumentException("Invalid floor!");
+		}
 		if(this.floor != floor) {
 			int oldValue = this.floor;
 			this.floor = floor;
@@ -186,7 +192,10 @@ public class Elevator {
 		return position;
 	}
 
-	public void setPosition(int position) {
+	public void setPosition(int position) throws RemoteException {
+		if (position < 0 || position > numberOfFloors * plc.getFloorHeight()) {
+			throw new IllegalArgumentException("Invalid Position!");
+		}
 		if(this.position != position) {
 			int oldValue = this.position;
 			this.position = position;
@@ -211,6 +220,9 @@ public class Elevator {
 	}
 
 	public void setWeight(int weight) {
+		if (weight < 0) {
+			throw new IllegalArgumentException("The weight can't be negative!");
+		}
 		if(this.weight != weight) {
 			int oldValue = this.weight;
 			this.weight = weight;
@@ -220,7 +232,7 @@ public class Elevator {
 	
 	public boolean getServicesFloor(int floor) {
 		if(floor < 0 || floor >= numberOfFloors) {
-			throw new RuntimeException("Invalid floor");
+			throw new IllegalArgumentException("Invalid floor");
 		}
 		
 		return this.servicedFloors[floor];
@@ -228,7 +240,7 @@ public class Elevator {
 	
 	public void setServicesFloor(int floor, boolean service) throws RemoteException {
 		if(floor < 0 || floor >= numberOfFloors) {
-			throw new RuntimeException("Invalid floor");
+			throw new IllegalArgumentException("Invalid floor");
 		}
 		
 		if(this.servicedFloors[floor] != service) {
@@ -244,6 +256,9 @@ public class Elevator {
 	}
 
 	public void setTarget(int target) throws RemoteException {
+		if (target < 0 || target >= numberOfFloors) {
+			throw new IllegalArgumentException("Invalid floor");
+		}
 		if(this.target != target) {
 			plc.setTarget(number, target);
 			int oldValue = this.target;

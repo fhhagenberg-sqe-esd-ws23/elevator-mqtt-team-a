@@ -13,6 +13,7 @@ class BuildingTest {
 	void testNumberOfElevators() throws RemoteException {
 		IElevator plc = mock(IElevator.class);
 		when(plc.getElevatorNum()).thenReturn(4);
+		when(plc.getFloorNum()).thenReturn(1);
 		
 		Building building = new Building(plc);
 		
