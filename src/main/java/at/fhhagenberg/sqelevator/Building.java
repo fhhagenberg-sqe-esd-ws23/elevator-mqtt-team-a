@@ -10,6 +10,12 @@ public class Building {
 	private IUpdater[] updaters;
 	
 	public Building(IElevator plc) throws RemoteException {
+		
+		if(plc == null)
+		{
+			throw new IllegalArgumentException("Plc must be valid!"); 
+		}
+		
 		int numElevators = plc.getElevatorNum();
 		int numFloors = plc.getFloorNum();
 		elevators = new Elevator[numElevators];
