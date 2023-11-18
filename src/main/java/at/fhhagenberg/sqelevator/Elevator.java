@@ -3,6 +3,7 @@ package at.fhhagenberg.sqelevator;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.rmi.RemoteException;
+import java.util.Arrays;
 
 public class Elevator {
 	
@@ -143,7 +144,7 @@ public class Elevator {
 		}
 		
 		if(this.stopRequests[floor] != stop) {
-			boolean[] oldValue = this.stopRequests;
+			boolean[] oldValue = Arrays.copyOf(this.stopRequests, this.stopRequests.length);
 			this.stopRequests[floor] = stop;
 			this.pcs.firePropertyChange(STOP_REQUESTS_PROPERTY_NAME, oldValue, this.stopRequests);
 		}
@@ -245,7 +246,7 @@ public class Elevator {
 		
 		if(this.servicedFloors[floor] != service) {
 			plc.setServicesFloors(number, floor, service);
-			boolean[] oldValue = this.servicedFloors;
+			boolean[] oldValue = Arrays.copyOf(this.servicedFloors, this.servicedFloors.length);
 			this.servicedFloors[floor] = service;
 			this.pcs.firePropertyChange(SERVICED_FLOORS_PROPERTY_NAME, oldValue, this.servicedFloors);	
 		}

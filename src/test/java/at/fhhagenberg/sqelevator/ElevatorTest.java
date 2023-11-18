@@ -98,6 +98,7 @@ class ElevatorTest {
 	void testSetCommitedDirection_Uncommited() throws RemoteException {
 		IElevator plc = mock(IElevator.class);
 		when(plc.getFloorNum()).thenReturn(10);
+		when(plc.getCommittedDirection(0)).thenReturn(IElevator.ELEVATOR_DIRECTION_UNCOMMITTED);
 
 		Elevator elevator = new Elevator(plc, 0);
 		elevator.setCommittedDirection(IElevator.ELEVATOR_DIRECTION_UNCOMMITTED);
@@ -109,11 +110,13 @@ class ElevatorTest {
 	void testSetCommitedDirection_Up() throws RemoteException {
 		IElevator plc = mock(IElevator.class);
 		when(plc.getFloorNum()).thenReturn(10);
+		when(plc.getCommittedDirection(0)).thenReturn(IElevator.ELEVATOR_DIRECTION_UNCOMMITTED);
 
 		Elevator elevator = new Elevator(plc, 0);
 		elevator.setCommittedDirection(IElevator.ELEVATOR_DIRECTION_UP);
 
 		assertEquals(IElevator.ELEVATOR_DIRECTION_UP, elevator.getCommittedDirection());
+		verify(plc, times(1)).setCommittedDirection(0, IElevator.ELEVATOR_DIRECTION_UP);
 	}
 
 	@Test
@@ -309,23 +312,24 @@ class ElevatorTest {
 		assertTrue(elevator.getStopRequest(3));
 	}
 
-//	@Test
-//	void testStopRequestChanged() throws RemoteException {
-//		IElevator plc = mock(IElevator.class);
-//		when(plc.getFloorNum()).thenReturn(2);
-//		PropertyChangeListener listener = mock(PropertyChangeListener.class);
-//
-//		Elevator elevator = new Elevator(plc, 0);
-//		elevator.addPropertyChangeListener(listener);
-//		elevator.setStopRequest(1, true);
-//
-//		verify(listener, times(1))
-//				.propertyChange(argThat(event -> event.getPropertyName() == Elevator.STOP_REQUESTS_PROPERTY_NAME
-//						&& ((boolean[]) ((Object) event.getOldValue()))[0] == false
-//						&& ((boolean[]) ((Object) event.getOldValue()))[1] == false
-//						&& ((boolean[]) ((Object) event.getNewValue()))[0] == false
-//						&& ((boolean[]) ((Object) event.getNewValue()))[1] == true));
-//	}
+	@Test
+	void testStopRequestChanged() throws RemoteException {
+		IElevator plc = mock(IElevator.class);
+		when(plc.getFloorNum()).thenReturn(2);
+		when(plc.getElevatorButton(0, 0)).thenReturn(false);
+		PropertyChangeListener listener = mock(PropertyChangeListener.class);
+
+		Elevator elevator = new Elevator(plc, 0);
+		elevator.addPropertyChangeListener(listener);
+		elevator.setStopRequest(0, true);
+
+		verify(listener, times(1))
+				.propertyChange(argThat(event -> event.getPropertyName() == Elevator.STOP_REQUESTS_PROPERTY_NAME
+						&& ((boolean[]) ((Object) event.getOldValue()))[0] == false
+						&& ((boolean[]) ((Object) event.getOldValue()))[1] == false
+						&& ((boolean[]) ((Object) event.getNewValue()))[0] == true
+						&& ((boolean[]) ((Object) event.getNewValue()))[1] == false));
+	}
 
 	@Test
 	void testElevator0Capacity() throws RemoteException {
@@ -816,26 +820,28 @@ class ElevatorTest {
 		elevator.setServicesFloor(3, true);
 
 		assertTrue(elevator.getServicesFloor(3));
+		verify(plc, times(1)).setServicesFloors(0, 3, true);
 	}
 
-//	@Test
-//	void testServicedFloorsChanged() throws RemoteException {
-//		IElevator plc = mock(IElevator.class);
-//		when(plc.getFloorNum()).thenReturn(2);
-//		when(plc.getServicesFloors(0, 1)).thenReturn(false);
-//		PropertyChangeListener listener = mock(PropertyChangeListener.class);
-//
-//		Elevator elevator = new Elevator(plc, 0);
-//		elevator.addPropertyChangeListener(listener);
-//		elevator.setServicesFloor(1, true);
-//
-//		verify(listener, times(1))
-//				.propertyChange(argThat(event -> event.getPropertyName() == Elevator.STOP_REQUESTS_PROPERTY_NAME
-//						&& ((boolean[]) ((Object) event.getOldValue()))[0] == false
-//						&& ((boolean[]) ((Object) event.getOldValue()))[1] == false
-//						&& ((boolean[]) ((Object) event.getNewValue()))[0] == false
-//						&& ((boolean[]) ((Object) event.getNewValue()))[1] == true));
-//	}
+	@Test
+	void testServicedFloorsChanged() throws RemoteException {
+		IElevator plc = mock(IElevator.class);
+		when(plc.getFloorNum()).thenReturn(2);
+		when(plc.getServicesFloors(0, 0)).thenReturn(false);
+		PropertyChangeListener listener = mock(PropertyChangeListener.class);
+
+		Elevator elevator = new Elevator(plc, 0);
+		elevator.addPropertyChangeListener(listener);
+		elevator.setServicesFloor(0, true);
+
+		verify(listener, times(1))
+				.propertyChange(argThat(event -> event.getPropertyName() == Elevator.SERVICED_FLOORS_PROPERTY_NAME
+						&& ((boolean[]) ((Object) event.getOldValue()))[0] == false
+						&& ((boolean[]) ((Object) event.getOldValue()))[1] == false
+						&& ((boolean[]) ((Object) event.getNewValue()))[0] == true
+						&& ((boolean[]) ((Object) event.getNewValue()))[1] == false));
+		 
+	}
 
 	@Test
 	void testGetTarget_Zero() throws RemoteException {
@@ -879,6 +885,7 @@ class ElevatorTest {
 		elevator.setTarget(5);
 
 		assertEquals(5, elevator.getTarget());
+		verify(plc, times(1)).setTarget(0, 5);
 	}
 
 	@Test
