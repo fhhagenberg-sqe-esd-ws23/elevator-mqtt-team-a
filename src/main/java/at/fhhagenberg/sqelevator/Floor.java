@@ -6,8 +6,8 @@ import java.rmi.RemoteException;
 	
 public class Floor {
 	
-	private IElevator plc;
-	private int number;
+	private final IElevator plc;
+	private final int number;
 	private boolean buttonDown;
 	private boolean buttonUp;
 	

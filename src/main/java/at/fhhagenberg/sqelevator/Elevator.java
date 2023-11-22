@@ -7,9 +7,9 @@ import java.util.Arrays;
 
 public class Elevator {
 	
-	private IElevator plc;
-	private int number;
-	private int numberOfFloors;
+	private final IElevator plc;
+	private final int number;
+	private final int numberOfFloors;
 	private int committedDirection;
 	private int acceleration;
 	private boolean[] stopRequests;
