@@ -4,9 +4,9 @@ import java.rmi.RemoteException;
 
 public class FloorUpdater implements IUpdater {
 	
-	private Floor floor;
-	private IElevator plc;
-	private int number;
+	private final Floor floor;
+	private final IElevator plc;
+	private final int number;
 
 	public FloorUpdater(Floor floor) {
 		

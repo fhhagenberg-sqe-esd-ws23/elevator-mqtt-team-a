@@ -4,10 +4,10 @@ import java.rmi.RemoteException;
 
 public class ElevatorUpdater implements IUpdater {
 
-	private Elevator elevator;
-	private IElevator plc;
-	private int number;
-	private int numberOfFloors;
+	private final Elevator elevator;
+	private final IElevator plc;
+	private final int number;
+	private final int numberOfFloors;
 	
 	public ElevatorUpdater(Elevator elevator) throws RemoteException {
 		this.elevator = elevator;
