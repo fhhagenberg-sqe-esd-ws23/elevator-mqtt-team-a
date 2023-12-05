@@ -15,6 +15,7 @@ public class ElevatorsMqttAdapter {
 	private final FloorMqttBridge[] floorBridges;
 	private long updateTimerPeriodMs = 250;
 	private String exitLine = "exit";
+	private volatile boolean external_shutdown = false;
 
 	public ElevatorsMqttAdapter(Building building, ElevatorsMqttClient mqtt) throws RemoteException {
 		Elevator[] elevators = building.getElevators();
@@ -70,7 +71,7 @@ public class ElevatorsMqttAdapter {
 		while(true) {
 			Thread.sleep(updateTimerPeriodMs);
 			
-			if(thread.isExitRequest()) {
+			if(thread.isExitRequest() || external_shutdown) {
 				thread.join();
 				writer.write("Exited on user request.\n");
 				writer.flush();
@@ -116,5 +117,9 @@ public class ElevatorsMqttAdapter {
 		}
 		
 		this.exitLine = exitLine.trim();
+	}
+	
+	public void shutdown() {
+		external_shutdown = true;
 	}
 }

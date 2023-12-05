@@ -55,5 +55,29 @@ class InputStreamThreadTest {
 		    });
 		}
 	}
+	
+	@Test
+	void testNullInput() throws IOException, InterruptedException {
+		PipedInputStream input = null;
+
+		IllegalArgumentException ex =assertThrowsExactly( IllegalArgumentException.class, ()-> new InputStreamThread(input, "stop"));	
+		assertEquals("Input stream must not be null!",ex.getMessage());
+	}
+	
+	@Test
+	void testNullExitline() throws IOException, InterruptedException {
+		PipedInputStream input = new PipedInputStream();
+
+		IllegalArgumentException ex =assertThrowsExactly( IllegalArgumentException.class, ()-> new InputStreamThread(input, null));	
+		assertEquals("ExitLine must not be null!",ex.getMessage());
+	}
+	
+	@Test
+	void testEmptyExitLine() throws IOException, InterruptedException {
+		PipedInputStream input = new PipedInputStream();
+
+		IllegalArgumentException ex =assertThrowsExactly( IllegalArgumentException.class, ()-> new InputStreamThread(input, ""));	
+		assertEquals("ExitLine must not be blank!",ex.getMessage());
+	}
 
 }
