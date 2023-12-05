@@ -43,7 +43,7 @@ public class ElevatorsMqttClient {
 	}
 	
 	public boolean connect() throws InterruptedException, ExecutionException {
-		if(connected) {
+		if(isConnected()) {
 			return true;
 		}
 		
@@ -54,7 +54,7 @@ public class ElevatorsMqttClient {
 	}
 	
 	public boolean subscribeToControlMessages(int numberOfElevators, int numberOfFloors) throws InterruptedException, ExecutionException {
-		if(!connected) {
+		if(!isConnected()) {
 			return false;
 		}
 				
@@ -158,9 +158,6 @@ public class ElevatorsMqttClient {
 	        })
 			.get();
 			
-			if(publish.getPayload() == null) {
-				
-			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
