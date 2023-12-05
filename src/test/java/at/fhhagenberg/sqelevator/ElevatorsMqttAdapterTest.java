@@ -3,6 +3,7 @@ package at.fhhagenberg.sqelevator;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Console;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -70,7 +71,7 @@ class ElevatorsMqttAdapterTest {
 		
 		assertEquals("hello", adapter.getExitLine());
 	}
-	
+
 	@Test
 	void testSetExitLineNull() throws RemoteException {
 		IElevator plc = mock(IElevator.class);
@@ -81,7 +82,7 @@ class ElevatorsMqttAdapterTest {
 		IllegalArgumentException ex =assertThrowsExactly( IllegalArgumentException.class, ()->adapter.setExitLine(null));
 		assertEquals("ExitLine must not be null!", ex.getMessage());
 	}
-	
+
 	@Test
 	void testSetExitLineBlank() throws RemoteException {
 		IElevator plc = mock(IElevator.class);
@@ -92,8 +93,7 @@ class ElevatorsMqttAdapterTest {
 		IllegalArgumentException ex =assertThrowsExactly( IllegalArgumentException.class, ()->adapter.setExitLine(""));
 		assertEquals("ExitLine must not be blank!", ex.getMessage());
 	}
-	
-	
+
 	@Test
 	void testExitOnRightInput() throws IOException, InterruptedException, ExecutionException {
 		IElevator plc = mock(IElevator.class);
@@ -101,49 +101,53 @@ class ElevatorsMqttAdapterTest {
 		Building building = new Building(plc);
 		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(building, mqtt);
 		PipedInputStream input = new PipedInputStream();
-		PipedOutputStream out = new PipedOutputStream(input);
-		
-		Thread t1 = new Thread(new Runnable() {
-		    @Override
-		    public void run() {
-				try {
-					adapter.run(input, out);
-				} catch (InterruptedException | IOException | ExecutionException e) {
-					throw new IllegalArgumentException("exception");
-				}
-		    }
-		});  
-		t1.start();
-		
-		//adapter.shutdown();
-		
-		assertTimeoutPreemptively(Duration.ofSeconds(1), () -> {
-			t1.join();
-	    });
-
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		PipedOutputStream out = new PipedOutputStream(input);		
+		try (OutputStreamWriter inWriter = new OutputStreamWriter(out)) {
+			
+			Thread t1 = new Thread(new Runnable() {
+			    @Override
+			    public void run() {
+					try {
+						adapter.run(input, output);
+					} catch (InterruptedException | IOException | ExecutionException e) {
+						throw new IllegalArgumentException("exception");
+					}
+			    }
+			});  
+			t1.start();
+			
+			inWriter.write("exit\n");
+			inWriter.flush();
+			
+			assertTimeoutPreemptively(Duration.ofSeconds(1), () -> {
+				t1.join();
+			});
+		}
 	}
-	
-
 
 	@Test
 	void testUpdateFunctions() throws IOException, InterruptedException, ExecutionException {
 		IElevator plc = mock(IElevator.class);
 		ElevatorsMqttClient mqtt = mock(ElevatorsMqttClient.class);
-		Building building = new Building(plc);
-		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(building, mqtt);
-		PipedInputStream input = new PipedInputStream();
-		PipedOutputStream out = new PipedOutputStream(input);
 		when(plc.getElevatorNum()).thenReturn(1);
 		when(plc.getFloorNum()).thenReturn(2);
 		when(plc.getFloorButtonUp(0)).thenReturn(false);
 		when(plc.getFloorButtonDown(1)).thenReturn(false);
-		
+		Building building = new Building(plc);
+		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(building, mqtt);
+		PipedInputStream input = new PipedInputStream();
 
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		PipedOutputStream out = new PipedOutputStream(input);
+
+		try (OutputStreamWriter inWriter = new OutputStreamWriter(out)) {
+		
 		Thread t1 = new Thread(new Runnable() {
 		    @Override
 		    public void run() {
 				try {
-					adapter.run(input, out);
+					adapter.run(input, output);
 				} catch (InterruptedException | IOException | ExecutionException e) {
 					throw new IllegalArgumentException("exception");
 				}
@@ -151,7 +155,6 @@ class ElevatorsMqttAdapterTest {
 		});  
 		t1.start();
 		
-
 		Thread.sleep(100);
 		assertTrue(t1.isAlive());
 
@@ -166,15 +169,13 @@ class ElevatorsMqttAdapterTest {
 		assertTrue(building.getFloors()[0].isButtonUp());
 		assertTrue(building.getFloors()[1].isButtonDown());
 		
-		//adapter.shutdown();
+		inWriter.write("exit\n");
+		inWriter.flush();
 		
 		assertTimeoutPreemptively(Duration.ofSeconds(1), () -> {
 			t1.join();
 	    });
 		
-		
-
-	}
-	
-	
+		}
+	}	
 }
