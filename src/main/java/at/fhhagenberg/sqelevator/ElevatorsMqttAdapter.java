@@ -118,8 +118,4 @@ public class ElevatorsMqttAdapter {
 		
 		this.exitLine = exitLine.trim();
 	}
-	
-	public void shutdown() {
-		external_shutdown = true;
-	}
 }
