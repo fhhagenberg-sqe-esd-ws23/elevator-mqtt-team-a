@@ -56,16 +56,16 @@ public class ElevatorsMqttAdapter {
 	}
 	
 	public void run(InputStream input, OutputStream output) throws InterruptedException, IOException, ExecutionException {		
+		InputStreamThread thread = new InputStreamThread(input, exitLine);
+		thread.start();
+		mqtt.subscribeToControlMessages(elevatorBridges.length, floorBridges.length);
+		mqtt.connect();
+		startMqttBridges();
+		
 		OutputStreamWriter writer = new OutputStreamWriter(output);
 		writer.write("Started Elevators Mqtt Adapter.\n");
 		writer.write("Enter \"" + exitLine + "\" to stop the application.\n");
 		writer.flush();
-		
-		InputStreamThread thread = new InputStreamThread(input, exitLine);
-		thread.start();
-		mqtt.connect();
-		mqtt.subscribeToControlMessages(elevatorBridges.length, floorBridges.length);
-		startMqttBridges();
 				
 		while(true) {
 			Thread.sleep(updateTimerPeriodMs);

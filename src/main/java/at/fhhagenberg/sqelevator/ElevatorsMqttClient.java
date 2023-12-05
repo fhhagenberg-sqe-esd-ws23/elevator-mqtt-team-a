@@ -11,6 +11,7 @@ import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
 import com.hivemq.client.mqtt.mqtt3.message.connect.connack.Mqtt3ConnAck;
 import com.hivemq.client.mqtt.mqtt3.message.connect.connack.Mqtt3ConnAckReturnCode;
+import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish;
 import com.hivemq.client.mqtt.mqtt3.message.subscribe.suback.Mqtt3SubAckReturnCode;
 
 public class ElevatorsMqttClient {
@@ -141,19 +142,32 @@ public class ElevatorsMqttClient {
 	}
 	
 	private void publish(String topic, ByteBuffer payload, boolean retain) {
-		client.publishWith()
-        .topic(topic)
-        .payload(payload)
-        .qos(MqttQos.EXACTLY_ONCE)
-        .retain(retain)
-        .send()
-        .whenComplete((mqtt3Publish, throwable) -> {
-            if (throwable != null) {
-                // TODO: Handle failure to publish
-            } else {
-                // TODO: Handle successful publish, e.g. logging or incrementing a metric
-            }
-        });
+		try {
+			Mqtt3Publish publish = client.publishWith()
+			.topic(topic)
+			.payload(payload.array())
+			.qos(MqttQos.EXACTLY_ONCE)
+			.retain(retain)
+			.send()
+	        .whenComplete((mqtt3Publish, throwable) -> {
+	            if (throwable != null) {
+	                // TODO: Handle failure to publish
+	            } else {
+	                // TODO: Handle successful publish, e.g. logging or incrementing a metric
+	            }
+	        })
+			.get();
+			
+			if(publish.getPayload() == null) {
+				
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private void publishRetained(String topic, ByteBuffer payload) {
