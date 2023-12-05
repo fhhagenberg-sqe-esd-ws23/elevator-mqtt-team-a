@@ -98,7 +98,8 @@
 				<version>0.8.11</version>
 				<configuration>
 			        <excludes>
-			           <exclude>**/ElevatorExample.class</exclude>
+			       		<param>**.*ElevatorPlcMock</param>
+			       		<param>**.*Main</param>
 			       </excludes>
 			    </configuration>
 				<executions>
@@ -123,7 +124,9 @@
 				<version>1.15.1</version>
 				<configuration>
 					<excludedClasses>
-						<param>**.*ElevatorExample</param>
+						<param>**.*ElevatorsMqttClient</param>
+						<param>**.*ElevatorPlcMock</param>
+						<param>**.*Main</param>
 					</excludedClasses>
 				</configuration>
 				<dependencies>
