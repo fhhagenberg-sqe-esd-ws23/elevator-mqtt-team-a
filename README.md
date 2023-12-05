@@ -1,2 +1,43 @@
 # sqelevator-proj
 Group assignment SQElevator
+
+## Mqtt topics for 2 elevators and 3 floors:
+- building/elevator/count
+- building/elevator/0/direction
+- building/elevator/0/acceleration 
+- building/elevator/0/button/0 
+- building/elevator/0/button/1
+- building/elevator/0/button/2
+- building/elevator/0/capacity 
+- building/elevator/0/doors
+- building/elevator/0/floor 
+- building/elevator/0/position 
+- building/elevator/0/speed 
+- building/elevator/0/weight 
+- building/elevator/0/servicesfloor/0 
+- building/elevator/0/servicesfloor/1
+- building/elevator/0/servicesfloor/2 
+- building/elevator/0/target
+- building/elevator/1/direction
+- building/elevator/1/acceleration 
+- building/elevator/1/button/0 
+- building/elevator/1/button/1
+- building/elevator/1/button/2
+- building/elevator/1/capacity 
+- building/elevator/1/doors
+- building/elevator/1/floor 
+- building/elevator/1/position 
+- building/elevator/1/speed 
+- building/elevator/1/weight 
+- building/elevator/1/servicesfloor/0 
+- building/elevator/1/servicesfloor/1
+- building/elevator/1/servicesfloor/2 
+- building/elevator/1/target
+- building/floor/count
+- building/floor/height
+- building/floor/0/down
+- building/floor/0/up 
+- building/floor/1/down
+- building/floor/1/up
+- building/floor/2/down
+- building/floor/2/up
