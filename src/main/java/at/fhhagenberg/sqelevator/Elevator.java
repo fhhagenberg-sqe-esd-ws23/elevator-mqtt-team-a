@@ -103,6 +103,10 @@ public class Elevator {
 	public int getCommittedDirection() {
 		return committedDirection;
 	}
+	
+	public int getNumberOfFloors() {
+		return numberOfFloors;
+	}
 
 	public void setCommittedDirection(int committedDirection) throws RemoteException {
 		if (committedDirection != IElevator.ELEVATOR_DIRECTION_DOWN

@@ -6,35 +6,67 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.rmi.RemoteException;
 import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
 
 public class ElevatorsMqttAdapter {
 	private final IUpdater[] updaters;
+	private final ElevatorsMqttClient mqtt;
+	private final ElevatorMqttBridge[] elevatorBridges;
+	private final FloorMqttBridge[] floorBridges;
 	private long updateTimerPeriodMs = 250;
 	private String exitLine = "exit";
 
-	public ElevatorsMqttAdapter(Building building) throws RemoteException {
+	public ElevatorsMqttAdapter(Building building, ElevatorsMqttClient mqtt) throws RemoteException {
 		Elevator[] elevators = building.getElevators();
 		Floor[] floors = building.getFloors();
 		updaters = new IUpdater[elevators.length + floors.length];
+		elevatorBridges = new ElevatorMqttBridge[elevators.length];
+		floorBridges = new FloorMqttBridge[floors.length];
+		this.mqtt = mqtt;
 		
 		for(int i = 0; i < elevators.length; ++i) {
 			updaters[i] = new ElevatorUpdater(elevators[i]);
+			elevatorBridges[i] = new ElevatorMqttBridge(elevators[i], mqtt);
 		}
 		
 		for(int i = 0; i < floors.length; ++i) {
 			updaters[elevators.length + i] = new FloorUpdater(floors[i]);
+			floorBridges[i] = new FloorMqttBridge(floors[i], mqtt);
 		}
 	}
 	
-	public void run(InputStream input, OutputStream output) throws InterruptedException, IOException {
+	private void startMqttBridges() {
+		for(ElevatorMqttBridge bridge : elevatorBridges) {
+			bridge.start();
+		}
+		
+		for(FloorMqttBridge bridge : floorBridges) {
+			bridge.start();
+		}
+	}
+	
+	private void stopMqttBridges() {
+		for(ElevatorMqttBridge bridge : elevatorBridges) {
+			bridge.stop();
+		}
+		
+		for(FloorMqttBridge bridge : floorBridges) {
+			bridge.stop();
+		}
+	}
+	
+	public void run(InputStream input, OutputStream output) throws InterruptedException, IOException, ExecutionException {		
+		InputStreamThread thread = new InputStreamThread(input, exitLine);
+		thread.start();
+		mqtt.subscribeToControlMessages(elevatorBridges.length, floorBridges.length);
+		mqtt.connect();
+		startMqttBridges();
+		
 		OutputStreamWriter writer = new OutputStreamWriter(output);
 		writer.write("Started Elevators Mqtt Adapter.\n");
 		writer.write("Enter \"" + exitLine + "\" to stop the application.\n");
 		writer.flush();
-		
-		InputStreamThread thread = new InputStreamThread(input, exitLine);
-		thread.start();
-		
+				
 		while(true) {
 			Thread.sleep(updateTimerPeriodMs);
 			
@@ -42,13 +74,16 @@ public class ElevatorsMqttAdapter {
 				thread.join();
 				writer.write("Exited on user request.\n");
 				writer.flush();
-				return;
+				break;
 			}
 			
 			for(IUpdater updater : updaters) {
 				updater.update();
 			}
 		}
+		
+		stopMqttBridges();
+		mqtt.disconnect();
 	}
 
 	public IUpdater[] getUpdaters() {
