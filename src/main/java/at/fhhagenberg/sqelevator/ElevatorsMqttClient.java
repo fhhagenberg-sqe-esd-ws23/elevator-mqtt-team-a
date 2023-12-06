@@ -153,7 +153,7 @@ public class ElevatorsMqttClient {
 	            if (throwable != null) {
 	                // TODO: Handle failure to publish
 	            } else {
-	                // TODO: Handle successful publish, e.g. logging or incrementing a metric
+	                // TODO: Handle successful publish, e.g. logging or incrementing a metric kek
 	            }
 	        })
 			.get();
