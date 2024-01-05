@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayOutputStream;
-import java.io.Console;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
@@ -103,13 +102,17 @@ class ElevatorsMqttAdapterTest {
 		PipedInputStream input = new PipedInputStream();
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		PipedOutputStream out = new PipedOutputStream(input);		
+		
+		ExitCommandThread exitThread = new ExitCommandThread(input, "exit");
+		exitThread.start();
+		
 		try (OutputStreamWriter inWriter = new OutputStreamWriter(out)) {
 			
 			Thread t1 = new Thread(new Runnable() {
 			    @Override
 			    public void run() {
 					try {
-						adapter.run(input, output);
+						adapter.run(exitThread, output);
 					} catch (InterruptedException | IOException | ExecutionException e) {
 						throw new IllegalArgumentException("exception");
 					}
@@ -140,6 +143,9 @@ class ElevatorsMqttAdapterTest {
 
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		PipedOutputStream out = new PipedOutputStream(input);
+		
+		ExitCommandThread exitThread = new ExitCommandThread(input, "exit");
+		exitThread.start();
 
 		try (OutputStreamWriter inWriter = new OutputStreamWriter(out)) {
 		
@@ -147,7 +153,7 @@ class ElevatorsMqttAdapterTest {
 		    @Override
 		    public void run() {
 				try {
-					adapter.run(input, output);
+					adapter.run(exitThread, output);
 				} catch (InterruptedException | IOException | ExecutionException e) {
 					throw new IllegalArgumentException("exception");
 				}

@@ -10,7 +10,7 @@ import java.time.Duration;
 
 import org.junit.jupiter.api.Test;
 
-class InputStreamThreadTest {
+class ExitCommandThreadTest {
 
 	@Test
 	void testExitOnRightInput() throws IOException, InterruptedException {
@@ -18,7 +18,7 @@ class InputStreamThreadTest {
 		PipedOutputStream out = new PipedOutputStream(input);
 		try (OutputStreamWriter writer = new OutputStreamWriter(out)) {
 			
-			InputStreamThread thread = new InputStreamThread(input, "stop");	
+			ExitCommandThread thread = new ExitCommandThread(input, "stop");	
 			thread.start();			
 			writer.write("stop\n");
 			writer.flush();
@@ -37,7 +37,7 @@ class InputStreamThreadTest {
 		PipedOutputStream out = new PipedOutputStream(input);
 		try (OutputStreamWriter writer = new OutputStreamWriter(out)) {
 			
-			InputStreamThread thread = new InputStreamThread(input, "stop");	
+			ExitCommandThread thread = new ExitCommandThread(input, "stop");	
 			thread.start();			
 			writer.write("exit\n");
 			writer.flush();
@@ -60,7 +60,7 @@ class InputStreamThreadTest {
 	void testNullInput() throws IOException, InterruptedException {
 		PipedInputStream input = null;
 
-		IllegalArgumentException ex =assertThrowsExactly( IllegalArgumentException.class, ()-> new InputStreamThread(input, "stop"));	
+		IllegalArgumentException ex =assertThrowsExactly( IllegalArgumentException.class, ()-> new ExitCommandThread(input, "stop"));	
 		assertEquals("Input stream must not be null!",ex.getMessage());
 	}
 	
@@ -68,7 +68,7 @@ class InputStreamThreadTest {
 	void testNullExitline() throws IOException, InterruptedException {
 		PipedInputStream input = new PipedInputStream();
 
-		IllegalArgumentException ex =assertThrowsExactly( IllegalArgumentException.class, ()-> new InputStreamThread(input, null));	
+		IllegalArgumentException ex =assertThrowsExactly( IllegalArgumentException.class, ()-> new ExitCommandThread(input, null));	
 		assertEquals("ExitLine must not be null!",ex.getMessage());
 	}
 	
@@ -76,7 +76,7 @@ class InputStreamThreadTest {
 	void testEmptyExitLine() throws IOException, InterruptedException {
 		PipedInputStream input = new PipedInputStream();
 
-		IllegalArgumentException ex =assertThrowsExactly( IllegalArgumentException.class, ()-> new InputStreamThread(input, ""));	
+		IllegalArgumentException ex =assertThrowsExactly( IllegalArgumentException.class, ()-> new ExitCommandThread(input, ""));	
 		assertEquals("ExitLine must not be blank!",ex.getMessage());
 	}
 

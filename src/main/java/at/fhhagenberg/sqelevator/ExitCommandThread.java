@@ -3,12 +3,12 @@ package at.fhhagenberg.sqelevator;
 import java.io.InputStream;
 import java.util.Scanner;
 
-public class InputStreamThread extends Thread {	
+public class ExitCommandThread extends Thread {	
 	private final InputStream input;
 	private final String exitLine;
 	private volatile boolean exitRequest = false;
 	
-	public InputStreamThread(InputStream input, String exitLine) {
+	public ExitCommandThread(InputStream input, String exitLine) {
 		if(input == null) {
 			throw new IllegalArgumentException("Input stream must not be null!");
 		}

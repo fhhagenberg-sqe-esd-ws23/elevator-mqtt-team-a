@@ -56,25 +56,19 @@ public class ElevatorsMqttAdapter {
 		}
 	}
 	
-	public void run(InputStream input, OutputStream output) throws InterruptedException, IOException, ExecutionException {		
-		InputStreamThread thread = new InputStreamThread(input, exitLine);
-		thread.start();
+	public void run(ExitCommandThread exitThread, OutputStream output) throws InterruptedException, IOException, ExecutionException {
+		mqtt.unsubscribeAll();
 		mqtt.subscribeToControlMessages(elevatorBridges.length, floorBridges.length);
-		mqtt.connect();
 		startMqttBridges();
 		
 		OutputStreamWriter writer = new OutputStreamWriter(output);
 		writer.write("Started Elevators Mqtt Adapter.\n");
-		writer.write("Enter \"" + exitLine + "\" to stop the application.\n");
-		writer.flush();
 				
 		while(true) {
 			Thread.sleep(updateTimerPeriodMs);
 			
-			if(thread.isExitRequest() || external_shutdown) {
-				thread.join();
-				writer.write("Exited on user request.\n");
-				writer.flush();
+			if(exitThread.isExitRequest() || external_shutdown) {
+				exitThread.join();
 				break;
 			}
 			
@@ -84,7 +78,6 @@ public class ElevatorsMqttAdapter {
 		}
 		
 		stopMqttBridges();
-		mqtt.disconnect();
 	}
 
 	public IUpdater[] getUpdaters() {
