@@ -15,32 +15,21 @@ import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 public class Main {
-	public static void main(String[] args) throws InterruptedException, IOException, ExecutionException, NotBoundException{
+	public static void main(String[] args) throws InterruptedException, IOException, ExecutionException {
 		main(args, System.in, System.out);
 	}
 	
-	public static void main(String[] args, InputStream input, OutputStream output) throws InterruptedException, IOException, ExecutionException, NotBoundException {
-		String rootPath = new java.io.File(".").getCanonicalPath() + "\\";
-		String appConfigPath = rootPath + "elevator.properties";
-
-		Properties appProps = new Properties();
-		appProps.load(new FileInputStream(appConfigPath));
+	public static void main(String[] args, InputStream input, OutputStream output) throws InterruptedException, IOException, ExecutionException {
+		ElevatorProperties props = new ElevatorProperties();
 		
-		String rmi_address = appProps.getProperty("rmi_address");
-		int rmi_port = Integer.parseInt(appProps.getProperty("rmi_port"));
-		String mqtt_address = appProps.getProperty("mqtt_address");
-		int mqtt_port = Integer.parseInt(appProps.getProperty("mqtt_port"));
-		int polling_interval = Integer.parseInt(appProps.getProperty("polling_interval"));
-		String exitLine = appProps.getProperty("exit_line");
-		
-		ElevatorsMqttClient mqtt = new ElevatorsMqttClient(mqtt_address, mqtt_port);
+		ElevatorsMqttClient mqtt = new ElevatorsMqttClient(props.getMqttAddress(), props.getMqttPort());
 		mqtt.connect();
 		
-		ExitCommandThread exitThread = new ExitCommandThread(input, exitLine);
+		ExitCommandThread exitThread = new ExitCommandThread(input, props.getExitLine());
 		exitThread.start();
 		
 		OutputStreamWriter writer = new OutputStreamWriter(output);
-		writer.write("Enter \"" + exitLine + "\" to stop the application.\n");
+		writer.write("Enter \"" + props.getExitLine() + "\" to stop the application.\n");
 		writer.flush();
 		
 		while(!exitThread.isExitRequest()) {
@@ -51,11 +40,11 @@ public class Main {
 					plc = new ElevatorPlcMock(2, 2, 5);		
 				}
 				else {
-					plc = connect(rmi_address, rmi_port, output);
+					plc = connect(props.getRmiAddress(), props.getRmiPort(), output);
 				}
 
 				if(plc != null) {
-					run(plc, mqtt, exitThread, output, polling_interval);
+					run(plc, mqtt, exitThread, output, props.getRmiPollingInterval());
 				}
 			}
 			catch(RemoteException e) {

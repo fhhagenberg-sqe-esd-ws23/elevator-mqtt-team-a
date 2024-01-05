@@ -143,7 +143,7 @@ public class ElevatorsMqttClient {
 	
 	private void publish(String topic, ByteBuffer payload, boolean retain) {
 		try {
-			Mqtt3Publish publish = client.publishWith()
+			client.publishWith()
 			.topic(topic)
 			.payload(payload.array())
 			.qos(MqttQos.EXACTLY_ONCE)
@@ -157,7 +157,6 @@ public class ElevatorsMqttClient {
 	            }
 	        })
 			.get();
-			
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

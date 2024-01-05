@@ -112,7 +112,7 @@ public class Elevator {
 		if (committedDirection != IElevator.ELEVATOR_DIRECTION_DOWN
 				&& committedDirection != IElevator.ELEVATOR_DIRECTION_UP
 				&& committedDirection != IElevator.ELEVATOR_DIRECTION_UNCOMMITTED) {
-			throw new IllegalArgumentException("The commited direction must be 0, 1 or2!");
+			throw new IllegalArgumentException("The commited direction must be 0, 1 or 2!");
 		}
 		if(this.committedDirection != committedDirection) {
 			plc.setCommittedDirection(getNumber(), committedDirection);
