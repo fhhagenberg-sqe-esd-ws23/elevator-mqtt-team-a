@@ -12,11 +12,23 @@ import java.rmi.registry.Registry;
 
 import sqelevator.IElevator;
 
+/**
+ * Wrapper for remote IElevator references.
+ * 
+ * After a connection loss registry.lookup() returns a different IElevator reference object at reconnect.
+ * This class provides reusable objects which forward method calls to the current IElevator object.
+ * 
+ * All IElevator methods throw a RuntimeException if connect() wasn't successful at least once before calling them.
+ */
 public class ElevatorsPlcConnection implements IElevator {
-	
+
 	private final ElevatorProperties props;
 	private IElevator plc;
-	
+
+	/**
+	 * Create new IElevator connection object.
+	 * @param props the properties with the connection information for the remote API
+	 */
 	public ElevatorsPlcConnection(ElevatorProperties props) {
 		if(props == null) {
 			throw new IllegalArgumentException("ElevatorProperties must not be null!");
@@ -24,7 +36,7 @@ public class ElevatorsPlcConnection implements IElevator {
 		
 		this.props = props;
 	}
-	
+
 	private IElevator getPlc() {
 		if(plc == null) {
 			throw new RuntimeException("Connect method must be successful once before using other methods!");
@@ -32,7 +44,12 @@ public class ElevatorsPlcConnection implements IElevator {
 		
 		return plc;
 	}
-	
+
+	/**
+	 * Connect to the remote IElevator API.
+	 * @param output output stream for displaying information
+	 * @return whether the connection to the IElevator API was successful (true) or not (false)
+	 */
 	public boolean connect(OutputStream output) {
 		try {
 			Registry registry = LocateRegistry.getRegistry(props.getRmiAddress(), props.getRmiPort());

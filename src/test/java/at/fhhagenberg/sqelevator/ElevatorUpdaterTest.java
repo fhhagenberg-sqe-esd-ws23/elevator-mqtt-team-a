@@ -18,6 +18,7 @@ class ElevatorUpdaterTest {
 	void testUpdateCommitedDirection() throws RemoteException {
 		IElevator plc = mock(IElevator.class);
 		when(plc.getFloorNum()).thenReturn(10);
+		when(plc.getElevatorDoorStatus(0)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
 		when(plc.getCommittedDirection(0)).thenReturn(IElevator.ELEVATOR_DIRECTION_UNCOMMITTED);
 
 		Elevator elevator = new Elevator(plc, 0);
@@ -33,6 +34,7 @@ class ElevatorUpdaterTest {
 	void testUpdateAcceleration() throws RemoteException {
 		IElevator plc = mock(IElevator.class);
 		when(plc.getFloorNum()).thenReturn(10);
+		when(plc.getElevatorDoorStatus(0)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
 		when(plc.getElevatorAccel(0)).thenReturn(0);
 
 		Elevator elevator = new Elevator(plc, 0);
@@ -48,6 +50,7 @@ class ElevatorUpdaterTest {
 	void testUpdateStopRequests() throws RemoteException {
 		IElevator plc = mock(IElevator.class);
 		when(plc.getFloorNum()).thenReturn(10);
+		when(plc.getElevatorDoorStatus(0)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
 		when(plc.getElevatorButton(0, 0)).thenReturn(false);
 
 		Elevator elevator = new Elevator(plc, 0);
@@ -63,6 +66,7 @@ class ElevatorUpdaterTest {
 	void testUpdateCapacity() throws RemoteException {
 		IElevator plc = mock(IElevator.class);
 		when(plc.getFloorNum()).thenReturn(10);
+		when(plc.getElevatorDoorStatus(0)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
 		when(plc.getElevatorCapacity(0)).thenReturn(5);
 
 		Elevator elevator = new Elevator(plc, 0);
@@ -93,6 +97,7 @@ class ElevatorUpdaterTest {
 	void testUpdateFloor() throws RemoteException {
 		IElevator plc = mock(IElevator.class);
 		when(plc.getFloorNum()).thenReturn(10);
+		when(plc.getElevatorDoorStatus(0)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
 		when(plc.getElevatorFloor(0)).thenReturn(0);
 
 		Elevator elevator = new Elevator(plc, 0);
@@ -108,6 +113,7 @@ class ElevatorUpdaterTest {
 	void testUpdatePosition() throws RemoteException {
 		IElevator plc = mock(IElevator.class);
 		when(plc.getFloorNum()).thenReturn(10);
+		when(plc.getElevatorDoorStatus(0)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
 		when(plc.getElevatorPosition(0)).thenReturn(0);
 		when(plc.getFloorHeight()).thenReturn(3);
 
@@ -124,6 +130,7 @@ class ElevatorUpdaterTest {
 	void testUpdateSpeed() throws RemoteException {
 		IElevator plc = mock(IElevator.class);
 		when(plc.getFloorNum()).thenReturn(10);
+		when(plc.getElevatorDoorStatus(0)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
 		when(plc.getElevatorSpeed(0)).thenReturn(0);
 
 		Elevator elevator = new Elevator(plc, 0);
@@ -139,6 +146,7 @@ class ElevatorUpdaterTest {
 	void testUpdateWeight() throws RemoteException {
 		IElevator plc = mock(IElevator.class);
 		when(plc.getFloorNum()).thenReturn(10);
+		when(plc.getElevatorDoorStatus(0)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
 		when(plc.getElevatorWeight(0)).thenReturn(0);
 
 		Elevator elevator = new Elevator(plc, 0);
@@ -154,6 +162,7 @@ class ElevatorUpdaterTest {
 	void testUpdateServicesFloor() throws RemoteException {
 		IElevator plc = mock(IElevator.class);
 		when(plc.getFloorNum()).thenReturn(10);
+		when(plc.getElevatorDoorStatus(0)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
 		when(plc.getServicesFloors(0, 0)).thenReturn(false);
 
 		Elevator elevator = new Elevator(plc, 0);
@@ -169,6 +178,7 @@ class ElevatorUpdaterTest {
 	void testUpdateTarget() throws RemoteException {
 		IElevator plc = mock(IElevator.class);
 		when(plc.getFloorNum()).thenReturn(10);
+		when(plc.getElevatorDoorStatus(0)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
 		when(plc.getTarget(0)).thenReturn(0);
 
 		Elevator elevator = new Elevator(plc, 0);

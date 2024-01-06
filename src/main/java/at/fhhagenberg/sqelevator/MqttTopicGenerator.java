@@ -1,5 +1,8 @@
 package at.fhhagenberg.sqelevator;
 
+/**
+ * Utility class which builds and provides MQTT topics for the MQTT client.
+ */
 public class MqttTopicGenerator {
 
 	public final static char TOPIC_LEVEL_SEPERATOR = '/';

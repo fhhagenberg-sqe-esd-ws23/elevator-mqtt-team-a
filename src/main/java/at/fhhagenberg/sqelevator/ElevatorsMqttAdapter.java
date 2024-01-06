@@ -3,59 +3,68 @@ package at.fhhagenberg.sqelevator;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * This class is the main class of the Elevators MQTT Adapter program.
+ * It takes a Building with its elevators and floors and updates them from the Elevators PLC in a configurable interval via the Updater classes.
+ * The Bridge classes publish MQTT messages on changes in the Building and listen to MQTT control messages which update the PLC via the Elevator class.
+ */
 public class ElevatorsMqttAdapter {
-	private final IUpdater[] updaters;
+	private final Building building;
 	private final ElevatorsMqttClient mqtt;
-	private final ElevatorMqttBridge[] elevatorBridges;
-	private final FloorMqttBridge[] floorBridges;
+	private final IUpdater[] updaters;
+	private final IMqttBridge[] bridges;
 	private long updateTimerPeriodMs = 250;
 
-	public ElevatorsMqttAdapter(Building building, ElevatorsMqttClient mqtt) throws RemoteException {
+	/**
+	 * Create new ElevatorsMqttAdapter for the given building and MQTT client.
+	 * @param building the building to use in the adapter
+	 * @param mqtt the MQTT client to use in the adapter
+	 */
+	public ElevatorsMqttAdapter(Building building, ElevatorsMqttClient mqtt) {
+		this.building = building;
+		this.mqtt = mqtt;
+
 		Elevator[] elevators = building.getElevators();
 		Floor[] floors = building.getFloors();
 		updaters = new IUpdater[elevators.length + floors.length];
-		elevatorBridges = new ElevatorMqttBridge[elevators.length];
-		floorBridges = new FloorMqttBridge[floors.length];
-		this.mqtt = mqtt;
+		bridges = new IMqttBridge[elevators.length + floors.length];
 		
 		for(int i = 0; i < elevators.length; ++i) {
 			updaters[i] = new ElevatorUpdater(elevators[i]);
-			elevatorBridges[i] = new ElevatorMqttBridge(elevators[i], mqtt);
+			bridges[i] = new ElevatorMqttBridge(elevators[i], mqtt);
 		}
 		
 		for(int i = 0; i < floors.length; ++i) {
 			updaters[elevators.length + i] = new FloorUpdater(floors[i]);
-			floorBridges[i] = new FloorMqttBridge(floors[i], mqtt);
+			bridges[elevators.length + i] = new FloorMqttBridge(floors[i], mqtt);
 		}
 	}
-	
+
 	private void startMqttBridges() {
-		for(ElevatorMqttBridge bridge : elevatorBridges) {
-			bridge.start();
-		}
-		
-		for(FloorMqttBridge bridge : floorBridges) {
+		for(IMqttBridge bridge : bridges) {
 			bridge.start();
 		}
 	}
-	
+
 	private void stopMqttBridges() {
-		for(ElevatorMqttBridge bridge : elevatorBridges) {
-			bridge.stop();
-		}
-		
-		for(FloorMqttBridge bridge : floorBridges) {
+		for(IMqttBridge bridge : bridges) {
 			bridge.stop();
 		}
 	}
-	
+
+	/**
+	 * Run the Elevators MQTT Adapter. Periodically poll the RMI interface in a loop until the exit signal.
+	 * @param exitThread instance of ExitCommandThread which provides the signal to exit the program
+	 * @param output output stream to write information to
+	 */
 	public void run(ExitCommandThread exitThread, OutputStream output) throws InterruptedException, IOException, ExecutionException {
 		mqtt.unsubscribeAll();
-		mqtt.subscribeToControlMessages(elevatorBridges.length, floorBridges.length);
+		mqtt.subscribeToControlMessages(building.getElevatorCount(), building.getFloorCount());
+
+		stopMqttBridges();
 		startMqttBridges();
 		
 		OutputStreamWriter writer = new OutputStreamWriter(output);
@@ -77,14 +86,34 @@ public class ElevatorsMqttAdapter {
 		stopMqttBridges();
 	}
 
+	/**
+	 * Provides a copy of the array with the elevator and floor updater objects.
+	 * @return an array with the updater objects
+	 */
 	public IUpdater[] getUpdaters() {
 		return Arrays.copyOf(updaters, updaters.length);
 	}
-	
+
+	/**
+	 * Provides a copy of the array with the elevator and floor MQTT bridge objects.
+	 * @return an array with the MQTT bridge objects
+	 */
+	public IMqttBridge[] getBridges() {
+		return Arrays.copyOf(bridges, bridges.length);
+	}
+
+	/**
+	 * Provides the current RMI polling interval.
+	 * @return the current RMI polling interval in ms
+	 */
 	public long getUpdateTimerPeriodMs() {
 		return updateTimerPeriodMs;
 	}
 
+	/**
+	 * Sets the RMI polling interval.
+	 * @param updateTimerPeriodMs the new RMI polling interval in ms
+	 */
 	public void setUpdateTimerPeriodMs(long updateTimerPeriodMs) {
 		if(updateTimerPeriodMs <= 0) {
 			throw new IllegalArgumentException("Update timer period must be greater than 0!");

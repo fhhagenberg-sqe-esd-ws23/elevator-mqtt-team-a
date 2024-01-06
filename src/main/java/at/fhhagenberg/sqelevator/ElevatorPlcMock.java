@@ -4,6 +4,11 @@ import java.rmi.RemoteException;
 
 import sqelevator.IElevator;
 
+/**
+ * Class provides a mock object for the IElevator interface to run the application without the elevator simulator.
+ * All getters return 0 by default.
+ * Values set by the setters are stored so the associated getters can return different values.
+ */
 public class ElevatorPlcMock implements IElevator {	
 	private final int numElevators;
 	private final int numFloors;
@@ -21,7 +26,13 @@ public class ElevatorPlcMock implements IElevator {
 	private final boolean[] floorButtonUp;
 	private final int[] target;
 	private final boolean[][] servicedFloors;
-	
+
+	/**
+	 * Create a new IElevator mock object with the given building parameters.
+	 * @param numElevators number of elevators in the mock building
+	 * @param numFloors number of floors in the mock building
+	 * @param floorHeight height of the floors in the mock building
+	 */
 	public ElevatorPlcMock(int numElevators, int numFloors, int floorHeight) {
 		this.numElevators = numElevators;
 		this.numFloors = numFloors;

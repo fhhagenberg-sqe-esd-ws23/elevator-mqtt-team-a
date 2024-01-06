@@ -5,6 +5,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+/**
+ * This class reads the required configuration file elevator.properties and provides getters to its contents.
+ * The file is read and parsed (only) in the constructor and there is no internal error handling.
+ */
 public class ElevatorProperties {
 	private final String rmiAddress;
 	private final int rmiPort;
@@ -14,6 +18,10 @@ public class ElevatorProperties {
 	private final int rmiPollingInterval;
 	private final String exitLine;
 
+	/**
+	 * Create new ElevatorProperties object and try to parse the elevator.properties file.
+	 * @throws IOException
+	 */
 	public ElevatorProperties() throws IOException {
 		String rootPath = new File(".").getCanonicalPath() + "\\";
 		String appConfigPath = rootPath + "elevator.properties";

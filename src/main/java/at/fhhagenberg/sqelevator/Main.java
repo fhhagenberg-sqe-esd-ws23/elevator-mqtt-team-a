@@ -9,12 +9,34 @@ import java.util.concurrent.ExecutionException;
 
 import sqelevator.IElevator;
 
+/**
+ * Application main class which provides the testable main method run().
+ * Also contains the main method of the application which creates a Main object and calls run().
+ */
 public class Main {
+
+	/**
+	 * Main method. Creates an object of Main and calls run().
+	 * @param args the command line arguments provided
+	 * @throws InterruptedException
+	 * @throws IOException if reading/parsing of elevator.properties fails
+	 * @throws ExecutionException
+	 */
 	public static void main(String[] args) throws InterruptedException, IOException, ExecutionException {
 		Main main = new Main();
 		main.run(args, System.in, System.out);
 	}
-	
+
+	/**
+	 * Testable main method of the Main class. Creates the main ElevatorsMqttAdapter object plus necessary objects and runs it.
+	 * Also contains reconnection logic for IElevator RMI API connection losses.
+	 * @param args the command line arguments provided
+	 * @param input input stream for keyboard input
+	 * @param output output stream for displaying information
+	 * @throws InterruptedException
+	 * @throws IOException if reading/parsing of elevator.properties fails
+	 * @throws ExecutionException
+	 */
 	public void run(String[] args, InputStream input, OutputStream output) throws InterruptedException, IOException, ExecutionException {
 		ElevatorProperties props = new ElevatorProperties();
 		
@@ -76,7 +98,7 @@ public class Main {
 		mqtt.disconnect();
 		exitThread.join();
 	}
-	
+
 	private void run(IElevator plc, ElevatorsMqttClient mqtt, ExitCommandThread exitThread, OutputStream output, int pollingInterval) throws InterruptedException, IOException, ExecutionException {
 		Building building = new Building(plc);
 		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(building, mqtt);
