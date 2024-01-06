@@ -24,6 +24,8 @@ import com.hivemq.client.mqtt.mqtt3.Mqtt3BlockingClient;
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client;
 import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish;
 
+import sqelevator.IElevator;
+
 @Testcontainers
 class ElevatorsMqttClientTest {
     private final MqttTopicGenerator topics = new MqttTopicGenerator();

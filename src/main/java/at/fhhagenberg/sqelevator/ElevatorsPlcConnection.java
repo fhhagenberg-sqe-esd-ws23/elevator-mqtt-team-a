@@ -10,6 +10,8 @@ import java.rmi.ServerException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+import sqelevator.IElevator;
+
 public class ElevatorsPlcConnection implements IElevator {
 	
 	private final ElevatorProperties props;

@@ -7,6 +7,8 @@ import java.rmi.RemoteException;
 
 import org.junit.jupiter.api.Test;
 
+import sqelevator.IElevator;
+
 class BuildingTest {
 
 	@Test

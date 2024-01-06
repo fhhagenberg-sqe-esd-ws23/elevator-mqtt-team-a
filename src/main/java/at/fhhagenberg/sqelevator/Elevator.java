@@ -5,6 +5,8 @@ import java.beans.PropertyChangeSupport;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 
+import sqelevator.IElevator;
+
 public class Elevator {
 	
 	private final IElevator plc;

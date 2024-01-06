@@ -3,6 +3,8 @@ package at.fhhagenberg.sqelevator;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 
+import sqelevator.IElevator;
+
 public class Building {
 
 	private final Elevator[] elevators;

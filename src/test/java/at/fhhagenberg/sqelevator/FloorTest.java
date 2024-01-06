@@ -9,6 +9,8 @@ import java.rmi.RemoteException;
 
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import sqelevator.IElevator;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 

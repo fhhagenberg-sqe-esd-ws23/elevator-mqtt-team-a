@@ -4,22 +4,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.rmi.AccessException;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.ServerException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.io.FileInputStream;
-import java.util.Properties;
 import java.util.concurrent.ExecutionException;
+
+import sqelevator.IElevator;
 
 public class Main {
 	public static void main(String[] args) throws InterruptedException, IOException, ExecutionException {
-		main(args, System.in, System.out);
+		Main main = new Main();
+		main.run(args, System.in, System.out);
 	}
 	
-	public static void main(String[] args, InputStream input, OutputStream output) throws InterruptedException, IOException, ExecutionException {
+	public void run(String[] args, InputStream input, OutputStream output) throws InterruptedException, IOException, ExecutionException {
 		ElevatorProperties props = new ElevatorProperties();
 		
 		ElevatorsMqttClient mqtt = new ElevatorsMqttClient(props.getMqttAddress(), props.getMqttPort());
@@ -34,14 +30,20 @@ public class Main {
 		
 		if(args.length > 0 && args[0] != null && args[0].contains("rmimock")) {					
 			IElevator plc = new ElevatorPlcMock(2, 2, 5);
+			writer.write("Using RMI API Mock.\n");
+			writer.flush();
 			run(plc, mqtt, exitThread, output, props.getRmiPollingInterval());
 		}
 		else {
 			ElevatorsPlcConnection plc = new ElevatorsPlcConnection(props);
+			writer.write("Using elevator simulator.\n");
+			writer.flush();
 			
 			while(!exitThread.isExitRequest()) {				
 				try {
 					if(plc.connect(output)) {
+						writer.write("Connected to RMI API.\n");
+						writer.flush();
 						run(plc, mqtt, exitThread, output, props.getRmiPollingInterval());
 					}
 				}
@@ -71,7 +73,7 @@ public class Main {
 		exitThread.join();
 	}
 	
-	private static void run(IElevator plc, ElevatorsMqttClient mqtt, ExitCommandThread exitThread, OutputStream output, int pollingInterval) throws InterruptedException, IOException, ExecutionException {
+	private void run(IElevator plc, ElevatorsMqttClient mqtt, ExitCommandThread exitThread, OutputStream output, int pollingInterval) throws InterruptedException, IOException, ExecutionException {
 		Building building = new Building(plc);
 		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(building, mqtt);
 		adapter.setUpdateTimerPeriodMs(pollingInterval);

@@ -2,6 +2,8 @@ package at.fhhagenberg.sqelevator;
 
 import java.rmi.RemoteException;
 
+import sqelevator.IElevator;
+
 public class ElevatorPlcMock implements IElevator {	
 	private final int numElevators;
 	private final int numFloors;

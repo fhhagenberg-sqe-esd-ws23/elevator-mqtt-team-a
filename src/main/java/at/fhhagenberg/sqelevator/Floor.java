@@ -3,6 +3,8 @@ package at.fhhagenberg.sqelevator;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.rmi.RemoteException;
+
+import sqelevator.IElevator;
 	
 public class Floor {
 	

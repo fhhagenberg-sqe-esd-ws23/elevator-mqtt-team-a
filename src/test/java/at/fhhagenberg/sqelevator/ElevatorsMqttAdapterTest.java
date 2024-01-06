@@ -14,6 +14,8 @@ import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
 
+import sqelevator.IElevator;
+
 class ElevatorsMqttAdapterTest {
 
 	@Test

@@ -2,6 +2,8 @@ package at.fhhagenberg.sqelevator;
 
 import java.rmi.RemoteException;
 
+import sqelevator.IElevator;
+
 public class ElevatorUpdater implements IUpdater {
 
 	private final Elevator elevator;
