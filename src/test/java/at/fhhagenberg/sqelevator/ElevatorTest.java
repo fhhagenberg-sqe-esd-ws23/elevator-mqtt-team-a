@@ -139,7 +139,7 @@ class ElevatorTest {
 
 		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
 				() -> elevator.setCommittedDirection(-1));
-		assertEquals("The commited direction must be 0, 1 or2!", thrown.getMessage());
+		assertEquals("The commited direction must be 0, 1 or 2!", thrown.getMessage());
 	}
 
 	@Test

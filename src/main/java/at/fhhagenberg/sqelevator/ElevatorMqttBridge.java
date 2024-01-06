@@ -61,11 +61,10 @@ public class ElevatorMqttBridge implements PropertyChangeListener, IMqttMessageL
 
 	@Override
 	public void setCommittedDirection(int elevator, int direction) {
-		if(elevator == this.elevator.getNumber()) {
+		if(started && elevator == this.elevator.getNumber()) {
 			try {
 				this.elevator.setCommittedDirection(direction);
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -73,11 +72,10 @@ public class ElevatorMqttBridge implements PropertyChangeListener, IMqttMessageL
 
 	@Override
 	public void setServicesFloor(int elevator, int floor, boolean service) {
-		if(elevator == this.elevator.getNumber()) {
+		if(started && elevator == this.elevator.getNumber()) {
 			try {
 				this.elevator.setServicesFloor(floor, service);
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -85,11 +83,10 @@ public class ElevatorMqttBridge implements PropertyChangeListener, IMqttMessageL
 
 	@Override
 	public void setTarget(int elevator, int target) {
-		if(elevator == this.elevator.getNumber()) {
+		if(started && elevator == this.elevator.getNumber()) {
 			try {
 				this.elevator.setTarget(target);
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

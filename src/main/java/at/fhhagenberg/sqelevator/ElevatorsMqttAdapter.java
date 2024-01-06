@@ -14,8 +14,6 @@ public class ElevatorsMqttAdapter {
 	private final ElevatorMqttBridge[] elevatorBridges;
 	private final FloorMqttBridge[] floorBridges;
 	private long updateTimerPeriodMs = 250;
-	private String exitLine = "exit";
-	private volatile boolean external_shutdown = false;
 
 	public ElevatorsMqttAdapter(Building building, ElevatorsMqttClient mqtt) throws RemoteException {
 		Elevator[] elevators = building.getElevators();
@@ -64,10 +62,10 @@ public class ElevatorsMqttAdapter {
 		OutputStreamWriter writer = new OutputStreamWriter(output);
 		writer.write("Started Elevators Mqtt Adapter.\n");
 				
-		while(true) {
+		while(!exitThread.isExitRequest()) {
 			Thread.sleep(updateTimerPeriodMs);
 			
-			if(exitThread.isExitRequest() || external_shutdown) {
+			if(exitThread.isExitRequest()) {
 				exitThread.join();
 				break;
 			}
@@ -94,21 +92,5 @@ public class ElevatorsMqttAdapter {
 		}
 		
 		this.updateTimerPeriodMs = updateTimerPeriodMs;
-	}
-
-	public String getExitLine() {
-		return exitLine;
-	}
-
-	public void setExitLine(String exitLine) {		
-		if(exitLine == null) {
-			throw new IllegalArgumentException("ExitLine must not be null!");
-		}
-		
-		if(exitLine.isBlank()) {
-			throw new IllegalArgumentException("ExitLine must not be blank!");
-		}
-		
-		this.exitLine = exitLine.trim();
 	}
 }

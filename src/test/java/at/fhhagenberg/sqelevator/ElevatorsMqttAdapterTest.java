@@ -56,42 +56,6 @@ class ElevatorsMqttAdapterTest {
 		IllegalArgumentException ex =assertThrowsExactly( IllegalArgumentException.class, ()->adapter.setUpdateTimerPeriodMs(0));
 		assertEquals("Update timer period must be greater than 0!", ex.getMessage());
 	}
-	
-	@Test
-	void testGetExitLine() throws RemoteException {
-		IElevator plc = mock(IElevator.class);
-		ElevatorsMqttClient mqtt = mock(ElevatorsMqttClient.class);
-		Building building = new Building(plc);
-		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(building, mqtt);
-		
-		assertEquals("exit", adapter.getExitLine());
-		
-		adapter.setExitLine("hello");
-		
-		assertEquals("hello", adapter.getExitLine());
-	}
-
-	@Test
-	void testSetExitLineNull() throws RemoteException {
-		IElevator plc = mock(IElevator.class);
-		ElevatorsMqttClient mqtt = mock(ElevatorsMqttClient.class);
-		Building building = new Building(plc);
-		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(building, mqtt);
-		
-		IllegalArgumentException ex =assertThrowsExactly( IllegalArgumentException.class, ()->adapter.setExitLine(null));
-		assertEquals("ExitLine must not be null!", ex.getMessage());
-	}
-
-	@Test
-	void testSetExitLineBlank() throws RemoteException {
-		IElevator plc = mock(IElevator.class);
-		ElevatorsMqttClient mqtt = mock(ElevatorsMqttClient.class);
-		Building building = new Building(plc);
-		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(building, mqtt);
-		
-		IllegalArgumentException ex =assertThrowsExactly( IllegalArgumentException.class, ()->adapter.setExitLine(""));
-		assertEquals("ExitLine must not be blank!", ex.getMessage());
-	}
 
 	@Test
 	void testExitOnRightInput() throws IOException, InterruptedException, ExecutionException {

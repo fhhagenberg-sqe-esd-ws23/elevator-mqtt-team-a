@@ -8,6 +8,7 @@ import java.util.Properties;
 public class ElevatorProperties {
 	private final String rmiAddress;
 	private final int rmiPort;
+	private final String rmiName;
 	private final String mqttAddress;
 	private final int mqttPort;
 	private final int rmiPollingInterval;
@@ -22,6 +23,7 @@ public class ElevatorProperties {
 
 		rmiAddress = appProps.getProperty("rmi_address");
 		rmiPort = Integer.parseInt(appProps.getProperty("rmi_port"));
+		rmiName = appProps.getProperty("rmi_name");
 		mqttAddress = appProps.getProperty("mqtt_address");
 		mqttPort = Integer.parseInt(appProps.getProperty("mqtt_port"));
 		rmiPollingInterval = Integer.parseInt(appProps.getProperty("polling_interval"));
@@ -34,6 +36,10 @@ public class ElevatorProperties {
 
 	public int getRmiPort() {
 		return rmiPort;
+	}
+	
+	public String getRmiName() {
+		return rmiName;
 	}
 
 	public String getMqttAddress() {
