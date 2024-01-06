@@ -188,6 +188,11 @@ public class ElevatorsMqttClient {
 		publishRetained(topics.getFloorHeightTopic(), payload);
 	}
 	
+	public void publishConnected(boolean connected) {
+		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(connected ? 1 : 0);
+		publishRetained(topics.getConnectedTopic(), payload);
+	}
+
 	public void publishDirection(int elevator, int direction) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(direction);
 		publishNotRetained(topics.getDirectionTopic(elevator), payload);

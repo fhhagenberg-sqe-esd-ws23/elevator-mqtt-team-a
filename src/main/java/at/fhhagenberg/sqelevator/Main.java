@@ -20,6 +20,7 @@ public class Main {
 		
 		ElevatorsMqttClient mqtt = new ElevatorsMqttClient(props.getMqttAddress(), props.getMqttPort());
 		mqtt.connect();
+		mqtt.publishConnected(false);
 		
 		ExitCommandThread exitThread = new ExitCommandThread(input, props.getExitLine());
 		exitThread.start();
@@ -42,6 +43,7 @@ public class Main {
 			while(!exitThread.isExitRequest()) {				
 				try {
 					if(plc.connect(output)) {
+						mqtt.publishConnected(true);
 						writer.write("Connected to RMI API.\n");
 						writer.flush();
 						run(plc, mqtt, exitThread, output, props.getRmiPollingInterval());
@@ -49,6 +51,7 @@ public class Main {
 				}
 				catch(RemoteException e) {
 					try {
+						mqtt.publishConnected(false);
 						writer.write("Lost connection to RMI API: ");
 						writer.write(e.getMessage());
 						writer.write("\nTry to reconnect ...\n");
@@ -65,7 +68,8 @@ public class Main {
 				Thread.sleep(2500);
 			}
 		}
-		
+
+		mqtt.publishConnected(false);
 		writer.write("Exited on user request.\n");
 		writer.flush();
 
