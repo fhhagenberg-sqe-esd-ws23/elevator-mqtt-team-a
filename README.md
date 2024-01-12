@@ -2,6 +2,7 @@
 Group assignment SQElevator
 
 ## Mqtt topics for 2 elevators and 3 floors:
+- building/connected
 - building/elevator/count
 - building/elevator/0/direction
 - building/elevator/0/setdirection

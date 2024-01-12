@@ -4,17 +4,33 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.rmi.RemoteException;
 
-public class ElevatorMqttBridge implements PropertyChangeListener, IMqttMessageListener {
+/**
+ * Class acting as a bridge between an elevator and a MQTT client.
+ * The class implements PropertyChangeListener and listens to changes in the Elevator class.
+ * On changes in the elevator class, a MQTT message is published via the MQTT client.
+ * The class also implements IMqttMessageListener and listens to control messages coming in via the MQTT client.
+ * If the elevator number of the incoming control message matches the associated elevator, the associated elevator is updated accordingly.
+ */
+public class ElevatorMqttBridge implements IMqttBridge, PropertyChangeListener, IMqttMessageListener {
 	
 	private final Elevator elevator;
 	private final ElevatorsMqttClient mqtt;
 	private boolean started = false;
 
+	/**
+	 * Create a new Bridge between the given elevator and mqtt client.
+	 * @param elevator the elevator to create the bridge for
+	 * @param mqtt the mqtt client to create the bridge with
+	 */
 	public ElevatorMqttBridge(Elevator elevator, ElevatorsMqttClient mqtt) {
 		this.elevator = elevator;
 		this.mqtt = mqtt;
 	}
-	
+
+	/**
+	 * Property change method of the implemented PropertyChangeListener interface.
+	 * @param evt property change event from the elevator
+	 */
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		if(evt.getSource() != elevator) {
@@ -55,46 +71,67 @@ public class ElevatorMqttBridge implements PropertyChangeListener, IMqttMessageL
 		case Elevator.TARGET_PROPERTY_NAME:
 			publishTarget();
 			break;
+		default:
+			throw new RuntimeException("Unknown property name.");
 		}
 		
 	}
 
+	/**
+	 * Set committed direction method of the implemented IMqttMessageListener interface.
+	 * Sets the committed direction of the specified elevator (up / down / uncommitted).
+	 * @param elevatorNumber elevator number whose committed direction is being set
+	 * @param direction direction being set where up=0, down=1 and uncommitted=2
+	 */
 	@Override
 	public void setCommittedDirection(int elevator, int direction) {
-		if(elevator == this.elevator.getNumber()) {
+		if(started && elevator == this.elevator.getNumber()) {
 			try {
 				this.elevator.setCommittedDirection(direction);
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
 
+	/**
+	 * Set floor service status method of the implemented IMqttMessageListener interface.
+	 * Sets whether or not the specified elevator will service the specified floor (yes/no).
+	 * @param elevatorNumber elevator number whose service is being defined
+	 * @param floor floor whose service by the specified elevator is being set
+	 * @param service indicates whether the floor is serviced by the specified elevator (yes=true,no=false)
+	 */
 	@Override
 	public void setServicesFloor(int elevator, int floor, boolean service) {
-		if(elevator == this.elevator.getNumber()) {
+		if(started && elevator == this.elevator.getNumber()) {
 			try {
 				this.elevator.setServicesFloor(floor, service);
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
 
+	/**
+	 * Set target method of the implemented IMqttMessageListener interface.
+	 * Sets the floor target of the specified elevator.
+	 * @param elevator elevator number whose target floor is being set
+	 * @param target floor number which the specified elevator is to target
+	 */
 	@Override
 	public void setTarget(int elevator, int target) {
-		if(elevator == this.elevator.getNumber()) {
+		if(started && elevator == this.elevator.getNumber()) {
 			try {
 				this.elevator.setTarget(target);
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
-	
+
+	/**
+	 * Start the bridge: Add the property change listener, publish the current information of the elevator and start handling control messages.
+	 */
 	public void start() {
 		if(started) {
 			return;
@@ -114,7 +151,10 @@ public class ElevatorMqttBridge implements PropertyChangeListener, IMqttMessageL
 		publishServicesFloors();
 		publishTarget();
 	}
-	
+
+	/**
+	 * Stop the bridge: Remove the property change listener and stop handling control messages.
+	 */
 	public void stop() {
 		started = false;
 		elevator.removePropertyChangeListener(this);

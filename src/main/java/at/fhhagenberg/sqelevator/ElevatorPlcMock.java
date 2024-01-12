@@ -2,7 +2,18 @@ package at.fhhagenberg.sqelevator;
 
 import java.rmi.RemoteException;
 
-public class ElevatorPlcMock implements IElevator {	
+import sqelevator.IElevator;
+
+/**
+ * Class provides a mock object for the IElevator interface to run the application without the elevator simulator.
+ * All getters return 0 by default.
+ * Values set by the setters are stored so the associated getters can return different values.
+ */
+public class ElevatorPlcMock implements IElevator {
+
+	private final static String INVALID_ELEVATOR = "Invalid elevator number!";
+	private final static String INVALID_FLOOR = "Invalid floor!";
+	
 	private final int numElevators;
 	private final int numFloors;
 	private final int floorHeight;
@@ -19,7 +30,13 @@ public class ElevatorPlcMock implements IElevator {
 	private final boolean[] floorButtonUp;
 	private final int[] target;
 	private final boolean[][] servicedFloors;
-	
+
+	/**
+	 * Create a new IElevator mock object with the given building parameters.
+	 * @param numElevators number of elevators in the mock building
+	 * @param numFloors number of floors in the mock building
+	 * @param floorHeight height of the floors in the mock building
+	 */
 	public ElevatorPlcMock(int numElevators, int numFloors, int floorHeight) {
 		this.numElevators = numElevators;
 		this.numFloors = numFloors;
@@ -37,12 +54,16 @@ public class ElevatorPlcMock implements IElevator {
 		floorButtonUp = new boolean[numFloors];
 		target = new int[numElevators];
 		servicedFloors = new boolean[numElevators][numFloors];
+		
+		for(int i = 0; i < numElevators; ++i) {
+			doorStatus[i] = IElevator.ELEVATOR_DOORS_CLOSED;
+		}
 	}
 
 	@Override
 	public int getCommittedDirection(int elevatorNumber) throws RemoteException {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
-			throw new IllegalArgumentException("Invalid elevator number!");
+			throw new IllegalArgumentException();
 		}
 		
 		return committedDirection[elevatorNumber];
@@ -51,7 +72,7 @@ public class ElevatorPlcMock implements IElevator {
 	@Override
 	public int getElevatorAccel(int elevatorNumber) throws RemoteException {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
-			throw new IllegalArgumentException("Invalid elevator number!");
+			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
 		
 		return accel[elevatorNumber];
@@ -60,11 +81,11 @@ public class ElevatorPlcMock implements IElevator {
 	@Override
 	public boolean getElevatorButton(int elevatorNumber, int floor) throws RemoteException {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
-			throw new IllegalArgumentException("Invalid elevator number!");
+			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
 		
 		if(floor < 0 || floor >= numFloors) {
-			throw new IllegalArgumentException("Invalid floor!");
+			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
 		
 		return buttons[elevatorNumber][floor];
@@ -73,7 +94,7 @@ public class ElevatorPlcMock implements IElevator {
 	@Override
 	public int getElevatorDoorStatus(int elevatorNumber) throws RemoteException {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
-			throw new IllegalArgumentException("Invalid elevator number!");
+			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
 		
 		return doorStatus[elevatorNumber];
@@ -82,7 +103,7 @@ public class ElevatorPlcMock implements IElevator {
 	@Override
 	public int getElevatorFloor(int elevatorNumber) throws RemoteException {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
-			throw new IllegalArgumentException("Invalid elevator number!");
+			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
 		
 		return floor[elevatorNumber];
@@ -96,7 +117,7 @@ public class ElevatorPlcMock implements IElevator {
 	@Override
 	public int getElevatorPosition(int elevatorNumber) throws RemoteException {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
-			throw new IllegalArgumentException("Invalid elevator number!");
+			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
 		
 		return position[elevatorNumber];
@@ -105,7 +126,7 @@ public class ElevatorPlcMock implements IElevator {
 	@Override
 	public int getElevatorSpeed(int elevatorNumber) throws RemoteException {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
-			throw new IllegalArgumentException("Invalid elevator number!");
+			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
 		
 		return speed[elevatorNumber];
@@ -114,7 +135,7 @@ public class ElevatorPlcMock implements IElevator {
 	@Override
 	public int getElevatorWeight(int elevatorNumber) throws RemoteException {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
-			throw new IllegalArgumentException("Invalid elevator number!");
+			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
 		
 		return weight[elevatorNumber];
@@ -123,7 +144,7 @@ public class ElevatorPlcMock implements IElevator {
 	@Override
 	public int getElevatorCapacity(int elevatorNumber) throws RemoteException {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
-			throw new IllegalArgumentException("Invalid elevator number!");
+			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
 		
 		return capacity[elevatorNumber];
@@ -132,7 +153,7 @@ public class ElevatorPlcMock implements IElevator {
 	@Override
 	public boolean getFloorButtonDown(int floor) throws RemoteException {		
 		if(floor < 0 || floor >= numFloors) {
-			throw new IllegalArgumentException("Invalid floor!");
+			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
 		
 		return floorButtonDown[floor];
@@ -141,7 +162,7 @@ public class ElevatorPlcMock implements IElevator {
 	@Override
 	public boolean getFloorButtonUp(int floor) throws RemoteException {		
 		if(floor < 0 || floor >= numFloors) {
-			throw new IllegalArgumentException("Invalid floor!");
+			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
 		
 		return floorButtonUp[floor];
@@ -160,11 +181,11 @@ public class ElevatorPlcMock implements IElevator {
 	@Override
 	public boolean getServicesFloors(int elevatorNumber, int floor) throws RemoteException {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
-			throw new IllegalArgumentException("Invalid elevator number!");
+			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
 		
 		if(floor < 0 || floor >= numFloors) {
-			throw new IllegalArgumentException("Invalid floor!");
+			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
 		
 		return servicedFloors[elevatorNumber][floor];
@@ -178,7 +199,7 @@ public class ElevatorPlcMock implements IElevator {
 	@Override
 	public void setCommittedDirection(int elevatorNumber, int direction) throws RemoteException {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
-			throw new IllegalArgumentException("Invalid elevator number!");
+			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
 		
 		if(direction < IElevator.ELEVATOR_DIRECTION_UP || direction > IElevator.ELEVATOR_DIRECTION_UNCOMMITTED) {
@@ -191,11 +212,11 @@ public class ElevatorPlcMock implements IElevator {
 	@Override
 	public void setServicesFloors(int elevatorNumber, int floor, boolean service) throws RemoteException {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
-			throw new IllegalArgumentException("Invalid elevator number!");
+			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
 		
 		if(floor < 0 || floor >= numFloors) {
-			throw new IllegalArgumentException("Invalid floor!");
+			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
 		
 		servicedFloors[elevatorNumber][floor] = service;
@@ -204,7 +225,7 @@ public class ElevatorPlcMock implements IElevator {
 	@Override
 	public void setTarget(int elevatorNumber, int target) throws RemoteException {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
-			throw new IllegalArgumentException("Invalid elevator number!");
+			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
 		
 		if(target < 0 || target >= numFloors) {

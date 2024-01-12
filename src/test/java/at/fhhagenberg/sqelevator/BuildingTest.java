@@ -7,6 +7,8 @@ import java.rmi.RemoteException;
 
 import org.junit.jupiter.api.Test;
 
+import sqelevator.IElevator;
+
 class BuildingTest {
 
 	@Test
@@ -14,6 +16,10 @@ class BuildingTest {
 		IElevator plc = mock(IElevator.class);
 		when(plc.getElevatorNum()).thenReturn(4);
 		when(plc.getFloorNum()).thenReturn(1);
+		when(plc.getElevatorDoorStatus(0)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
+		when(plc.getElevatorDoorStatus(1)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
+		when(plc.getElevatorDoorStatus(2)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
+		when(plc.getElevatorDoorStatus(3)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
 		
 		Building building = new Building(plc);
 		

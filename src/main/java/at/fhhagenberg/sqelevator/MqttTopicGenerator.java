@@ -1,5 +1,8 @@
 package at.fhhagenberg.sqelevator;
 
+/**
+ * Utility class which builds and provides MQTT topics for the MQTT client.
+ */
 public class MqttTopicGenerator {
 
 	public final static char TOPIC_LEVEL_SEPERATOR = '/';
@@ -12,7 +15,7 @@ public class MqttTopicGenerator {
 	public final static String TOPIC_LEVEL_UP = "up";
 	public final static String TOPIC_LEVEL_DOWN = "down";
 	public final static String TOPIC_LEVEL_DIRECTION = "direction";
-	public final static String TOPIC_LEVEL_ACCELERATION  = "acceleration ";
+	public final static String TOPIC_LEVEL_ACCELERATION  = "acceleration";
 	public final static String TOPIC_LEVEL_BUTTON = "button";
 	public final static String TOPIC_LEVEL_CAPACITY = "capacity";
 	public final static String TOPIC_LEVEL_DOORS = "doors";
@@ -24,6 +27,7 @@ public class MqttTopicGenerator {
 	public final static String TOPIC_LEVEL_SET_DIRECTION = "setdirection";
 	public final static String TOPIC_LEVEL_SET_SERVICES_FLOOR = "setservicesFloor";
 	public final static String TOPIC_LEVEL_SET_TARGET = "setTarget";
+	public final static String TOPIC_LEVEL_CONNECTED = "connected";
 		
 	public String getTopic(String... topicLevels) {
 		if(topicLevels.length == 0) {
@@ -46,6 +50,10 @@ public class MqttTopicGenerator {
 	
 	public String getFloorTopic() {
 		return getTopic(TOPIC_LEVEL_BUILDING, TOPIC_LEVEL_FLOOR);		
+	}
+	
+	public String getConnectedTopic() {
+		return getTopic(TOPIC_LEVEL_BUILDING, TOPIC_LEVEL_CONNECTED);
 	}
 	
 	public String getNumElevatorsTopic() {

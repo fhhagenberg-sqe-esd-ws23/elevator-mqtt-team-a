@@ -11,9 +11,13 @@ import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
 import com.hivemq.client.mqtt.mqtt3.message.connect.connack.Mqtt3ConnAck;
 import com.hivemq.client.mqtt.mqtt3.message.connect.connack.Mqtt3ConnAckReturnCode;
-import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish;
 import com.hivemq.client.mqtt.mqtt3.message.subscribe.suback.Mqtt3SubAckReturnCode;
 
+/**
+ * This class provides the MQTT client for the Elevators MQTT Adapter.
+ * It wraps a HiveMQ MQTT client and provides methods to easily publish various messages and subscribe to control messages.
+ * IMqttMessageListener objects can be added to get notified of control messages.
+ */
 public class ElevatorsMqttClient {
 	
 	private final Mqtt3AsyncClient client;
@@ -21,6 +25,11 @@ public class ElevatorsMqttClient {
 	private final MqttTopicGenerator topics = new MqttTopicGenerator();
 	private boolean connected = false;
 
+	/**
+	 * Create and build new MQTT client.
+	 * @param host address to the MQTT broker server
+	 * @param port port of the MQTT broker service on the server
+	 */
 	public ElevatorsMqttClient(String host, int port) {
 		client = MqttClient.builder()
 		        .useMqttVersion3()
@@ -30,18 +39,36 @@ public class ElevatorsMqttClient {
 		        .buildAsync();
 	}
 
+	/**
+	 * Provides the connection status of the MQTT client.
+	 * @return if the MQTT client is connected to a broker (true) or not (false)
+	 */
 	public boolean isConnected() {
 		return connected;
 	}
-	
+
+	/**
+	 * Adds a MQTT control message listener.
+	 * @param listener MQTT control message listener to add
+	 */
 	public void addListener(IMqttMessageListener listener) {
 		listeners.add(listener);
 	}
-	
+
+	/**
+	 * Removes a MQTT control message listener.
+	 * @param listener MQTT control message listener to remove
+	 */
 	public void removeListener(IMqttMessageListener listener) {
 		listeners.remove(listener);
 	}
-	
+
+	/**
+	 * Connects the MQTT client to the MQTT broker.
+	 * @return if the connection attempt was successful (true) or not (false)
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
 	public boolean connect() throws InterruptedException, ExecutionException {
 		if(isConnected()) {
 			return true;
@@ -52,7 +79,15 @@ public class ElevatorsMqttClient {
 		connected = code == Mqtt3ConnAckReturnCode.SUCCESS;		
 		return connected;	
 	}
-	
+
+	/**
+	 * Subscribe to all control messages required for the system.
+	 * @param numberOfElevators the number of elevators in the system
+	 * @param numberOfFloors the number of floors in the system
+	 * @return if the subscription to all control messages was successful (true) or not (false)
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
 	public boolean subscribeToControlMessages(int numberOfElevators, int numberOfFloors) throws InterruptedException, ExecutionException {
 		if(!isConnected()) {
 			return false;
@@ -117,6 +152,11 @@ public class ElevatorsMqttClient {
 		return true;
 	}
 	
+	/**
+	 * Unsubscribe from all control messages.
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
 	public void unsubscribeAll() throws InterruptedException, ExecutionException {
 		client.unsubscribeWith()
 		.topicFilter(MqttTopicGenerator.TOPIC_LEVEL_BUILDING)
@@ -140,10 +180,16 @@ public class ElevatorsMqttClient {
 			listener.setServicesFloor(elevator, floor, service);
 		}
 	}
-	
-	private void publish(String topic, ByteBuffer payload, boolean retain) {
+
+	/**
+	 * Publish a MQTT message.
+	 * @param topic the topic to publish the message to
+	 * @param payload the payload to publish the message with
+	 * @param retain whether the message should be a retained message (true) or not (false)
+	 */
+	public void publish(String topic, ByteBuffer payload, boolean retain) {
 		try {
-			Mqtt3Publish publish = client.publishWith()
+			client.publishWith()
 			.topic(topic)
 			.payload(payload.array())
 			.qos(MqttQos.EXACTLY_ONCE)
@@ -157,7 +203,6 @@ public class ElevatorsMqttClient {
 	            }
 	        })
 			.get();
-			
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -166,12 +211,22 @@ public class ElevatorsMqttClient {
 			e.printStackTrace();
 		}
 	}
-	
-	private void publishRetained(String topic, ByteBuffer payload) {
+
+	/**
+	 * Publish a retained MQTT message.
+	 * @param topic the topic to publish the message to
+	 * @param payload the payload to publish the message with
+	 */
+	public void publishRetained(String topic, ByteBuffer payload) {
 		publish(topic, payload, true);
 	}
-	
-	private void publishNotRetained(String topic, ByteBuffer payload) {
+
+	/**
+	 * Publish a MQTT message which is not a retained message.
+	 * @param topic the topic to publish the message to
+	 * @param payload the payload to publish the message with
+	 */
+	public void publishNotRetained(String topic, ByteBuffer payload) {
 		publish(topic, payload, false);
 	}
 	
@@ -190,6 +245,11 @@ public class ElevatorsMqttClient {
 		publishRetained(topics.getFloorHeightTopic(), payload);
 	}
 	
+	public void publishConnected(boolean connected) {
+		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(connected ? 1 : 0);
+		publishRetained(topics.getConnectedTopic(), payload);
+	}
+
 	public void publishDirection(int elevator, int direction) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(direction);
 		publishNotRetained(topics.getDirectionTopic(elevator), payload);
@@ -254,10 +314,16 @@ public class ElevatorsMqttClient {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(pressed ? 1 : 0);
 		publishNotRetained(topics.getButtonDownTopic(floor), payload);
 	}
-	
+
+	/**
+	 * Unsubscribe from all control messages and disconnect the client from the broker.
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
 	public void disconnect() throws InterruptedException, ExecutionException {
 		unsubscribeAll();
 		client.disconnect().get();
 		connected = false;
 	}
+
 }

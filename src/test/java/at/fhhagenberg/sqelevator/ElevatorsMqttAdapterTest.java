@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayOutputStream;
-import java.io.Console;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
@@ -15,6 +14,8 @@ import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
 
+import sqelevator.IElevator;
+
 class ElevatorsMqttAdapterTest {
 
 	@Test
@@ -23,6 +24,10 @@ class ElevatorsMqttAdapterTest {
 		ElevatorsMqttClient mqtt = mock(ElevatorsMqttClient.class);
 		when(plc.getElevatorNum()).thenReturn(4);
 		when(plc.getFloorNum()).thenReturn(5);
+		when(plc.getElevatorDoorStatus(0)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
+		when(plc.getElevatorDoorStatus(1)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
+		when(plc.getElevatorDoorStatus(2)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
+		when(plc.getElevatorDoorStatus(3)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
 		Building building = new Building(plc);
 		
 		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(building, mqtt);
@@ -57,42 +62,6 @@ class ElevatorsMqttAdapterTest {
 		IllegalArgumentException ex =assertThrowsExactly( IllegalArgumentException.class, ()->adapter.setUpdateTimerPeriodMs(0));
 		assertEquals("Update timer period must be greater than 0!", ex.getMessage());
 	}
-	
-	@Test
-	void testGetExitLine() throws RemoteException {
-		IElevator plc = mock(IElevator.class);
-		ElevatorsMqttClient mqtt = mock(ElevatorsMqttClient.class);
-		Building building = new Building(plc);
-		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(building, mqtt);
-		
-		assertEquals("exit", adapter.getExitLine());
-		
-		adapter.setExitLine("hello");
-		
-		assertEquals("hello", adapter.getExitLine());
-	}
-
-	@Test
-	void testSetExitLineNull() throws RemoteException {
-		IElevator plc = mock(IElevator.class);
-		ElevatorsMqttClient mqtt = mock(ElevatorsMqttClient.class);
-		Building building = new Building(plc);
-		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(building, mqtt);
-		
-		IllegalArgumentException ex =assertThrowsExactly( IllegalArgumentException.class, ()->adapter.setExitLine(null));
-		assertEquals("ExitLine must not be null!", ex.getMessage());
-	}
-
-	@Test
-	void testSetExitLineBlank() throws RemoteException {
-		IElevator plc = mock(IElevator.class);
-		ElevatorsMqttClient mqtt = mock(ElevatorsMqttClient.class);
-		Building building = new Building(plc);
-		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(building, mqtt);
-		
-		IllegalArgumentException ex =assertThrowsExactly( IllegalArgumentException.class, ()->adapter.setExitLine(""));
-		assertEquals("ExitLine must not be blank!", ex.getMessage());
-	}
 
 	@Test
 	void testExitOnRightInput() throws IOException, InterruptedException, ExecutionException {
@@ -103,13 +72,17 @@ class ElevatorsMqttAdapterTest {
 		PipedInputStream input = new PipedInputStream();
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		PipedOutputStream out = new PipedOutputStream(input);		
+		
+		ExitCommandThread exitThread = new ExitCommandThread(input, "exit");
+		exitThread.start();
+		
 		try (OutputStreamWriter inWriter = new OutputStreamWriter(out)) {
 			
 			Thread t1 = new Thread(new Runnable() {
 			    @Override
 			    public void run() {
 					try {
-						adapter.run(input, output);
+						adapter.run(exitThread, output);
 					} catch (InterruptedException | IOException | ExecutionException e) {
 						throw new IllegalArgumentException("exception");
 					}
@@ -134,12 +107,16 @@ class ElevatorsMqttAdapterTest {
 		when(plc.getFloorNum()).thenReturn(2);
 		when(plc.getFloorButtonUp(0)).thenReturn(false);
 		when(plc.getFloorButtonDown(1)).thenReturn(false);
+		when(plc.getElevatorDoorStatus(0)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
 		Building building = new Building(plc);
 		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(building, mqtt);
 		PipedInputStream input = new PipedInputStream();
 
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		PipedOutputStream out = new PipedOutputStream(input);
+		
+		ExitCommandThread exitThread = new ExitCommandThread(input, "exit");
+		exitThread.start();
 
 		try (OutputStreamWriter inWriter = new OutputStreamWriter(out)) {
 		
@@ -147,7 +124,7 @@ class ElevatorsMqttAdapterTest {
 		    @Override
 		    public void run() {
 				try {
-					adapter.run(input, output);
+					adapter.run(exitThread, output);
 				} catch (InterruptedException | IOException | ExecutionException e) {
 					throw new IllegalArgumentException("exception");
 				}

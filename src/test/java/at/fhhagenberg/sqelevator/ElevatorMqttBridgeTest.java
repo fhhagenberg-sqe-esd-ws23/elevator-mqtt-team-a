@@ -1,4 +1,6 @@
 package at.fhhagenberg.sqelevator;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.mockito.Mockito.*;
 
 import java.beans.PropertyChangeEvent;
@@ -252,7 +254,9 @@ public class ElevatorMqttBridgeTest {
 	@Test
 	void testPropertyChange_InvalidPropertyName() {
 		PropertyChangeEvent event = new PropertyChangeEvent(elevator, "invalid", null, null);
-		bridge.propertyChange(event);
+		
+		RuntimeException ex = assertThrowsExactly( RuntimeException.class, ()-> bridge.propertyChange(event));	
+		assertEquals("Unknown property name.",ex.getMessage());
 		
 		verify(elevator, times(0)).addPropertyChangeListener(bridge);
 		verify(mqtt, times(0)).publishDirection(0, 0);
@@ -273,7 +277,8 @@ public class ElevatorMqttBridgeTest {
 	@Test
 	void testSetCommitedDirection() throws RemoteException {
 		when(elevator.getNumber()).thenReturn(0);
-		
+
+		bridge.start();
 		bridge.setCommittedDirection(0, 0);
 		
 		verify(elevator, times(1)).setCommittedDirection(0);
@@ -283,6 +288,7 @@ public class ElevatorMqttBridgeTest {
 	void testSetCommitedDirection_FalseElevator() throws RemoteException {
 		when(elevator.getNumber()).thenReturn(0);
 		
+		bridge.start();
 		bridge.setCommittedDirection(1, 0);
 		
 		verify(elevator, times(0)).setCommittedDirection(0);
@@ -292,7 +298,8 @@ public class ElevatorMqttBridgeTest {
 	void testSetCommitedDirection_ThrowsException() throws RemoteException {
 		when(elevator.getNumber()).thenReturn(0);
 		doThrow(new RemoteException()).when(elevator).setCommittedDirection(0);
-		
+
+		bridge.start();
 		bridge.setCommittedDirection(0, 0);
 		
 		verify(elevator, times(1)).setCommittedDirection(0);
@@ -301,7 +308,8 @@ public class ElevatorMqttBridgeTest {
 	@Test
 	void testSetServicesFloor() throws RemoteException {
 		when(elevator.getNumber()).thenReturn(0);
-		
+
+		bridge.start();
 		bridge.setServicesFloor(0, 0, false);
 		
 		verify(elevator, times(1)).setServicesFloor(0, false);
@@ -311,6 +319,7 @@ public class ElevatorMqttBridgeTest {
 	void testSetServicesFloor_FalseElevator() throws RemoteException {
 		when(elevator.getNumber()).thenReturn(0);
 		
+		bridge.start();
 		bridge.setServicesFloor(1, 0, false);
 		
 		verify(elevator, times(0)).setServicesFloor(0, false);
@@ -320,7 +329,8 @@ public class ElevatorMqttBridgeTest {
 	void testSetServicesFloor_ThrowsException() throws RemoteException {
 		when(elevator.getNumber()).thenReturn(0);
 		doThrow(new RemoteException()).when(elevator).setServicesFloor(0, false);
-		
+
+		bridge.start();
 		bridge.setServicesFloor(0, 0, false);
 		
 		verify(elevator, times(1)).setServicesFloor(0, false);
@@ -329,7 +339,8 @@ public class ElevatorMqttBridgeTest {
 	@Test
 	void testSetTarget() throws RemoteException {
 		when(elevator.getNumber()).thenReturn(0);
-		
+
+		bridge.start();
 		bridge.setTarget(0, 0);
 		
 		verify(elevator, times(1)).setTarget(0);
@@ -339,6 +350,7 @@ public class ElevatorMqttBridgeTest {
 	void testSetTarget_FalseElevator() throws RemoteException {
 		when(elevator.getNumber()).thenReturn(0);
 		
+		bridge.start();
 		bridge.setTarget(1, 0);
 		
 		verify(elevator, times(0)).setTarget(0);
@@ -348,7 +360,8 @@ public class ElevatorMqttBridgeTest {
 	void testSetTarget_ThrowsException() throws RemoteException {
 		when(elevator.getNumber()).thenReturn(0);
 		doThrow(new RemoteException()).when(elevator).setTarget(0);
-		
+
+		bridge.start();
 		bridge.setTarget(0, 0);
 		
 		verify(elevator, times(1)).setTarget(0);
