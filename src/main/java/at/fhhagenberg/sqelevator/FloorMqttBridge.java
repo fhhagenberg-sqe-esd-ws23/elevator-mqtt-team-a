@@ -41,6 +41,8 @@ public class FloorMqttBridge implements IMqttBridge, PropertyChangeListener {
 		case Floor.BUTTON_DOWN_PROPERTY_NAME:
 			publishButtonDown();
 			break;
+		default:
+			throw new RuntimeException("Unknown property name.");
 		}
 	}
 

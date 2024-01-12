@@ -14,6 +14,8 @@ import sqelevator.IElevator;
  * This class implements PropertyChangeSupport and lets PropertyChangeListeners listen to property changes.
  */
 public class Elevator {
+	
+	private final static String INVALID_FLOOR = "Invalid floor!";
 
 	private final IElevator plc;
 	private final int number;
@@ -204,7 +206,7 @@ public class Elevator {
 	 */
 	public boolean getStopRequest(int floor) {
 		if(floor < 0 || floor >= numberOfFloors) {
-			throw new IllegalArgumentException("Invalid floor");
+			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
 		
 		return this.stopRequests[floor];
@@ -217,7 +219,7 @@ public class Elevator {
 	 */
 	public void setStopRequest(int floor, boolean stop) {
 		if(floor < 0 || floor >= numberOfFloors) {
-			throw new IllegalArgumentException("Invalid floor");
+			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
 		
 		if(this.stopRequests[floor] != stop) {
@@ -286,7 +288,7 @@ public class Elevator {
 	 */
 	public void setFloor(int floor) {
 		if (floor < 0 || floor >= numberOfFloors) {
-			throw new IllegalArgumentException("Invalid floor!");
+			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
 		if(this.floor != floor) {
 			int oldValue = this.floor;
@@ -368,7 +370,7 @@ public class Elevator {
 	 */
 	public boolean getServicesFloor(int floor) {
 		if(floor < 0 || floor >= numberOfFloors) {
-			throw new IllegalArgumentException("Invalid floor");
+			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
 		
 		return this.servicedFloors[floor];
@@ -382,7 +384,7 @@ public class Elevator {
 	 */
 	public void setServicesFloor(int floor, boolean service) throws RemoteException {
 		if(floor < 0 || floor >= numberOfFloors) {
-			throw new IllegalArgumentException("Invalid floor");
+			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
 		
 		if(this.servicedFloors[floor] != service) {
@@ -408,7 +410,7 @@ public class Elevator {
 	 */
 	public void setTarget(int target) throws RemoteException {
 		if (target < 0 || target >= numberOfFloors) {
-			throw new IllegalArgumentException("Invalid floor");
+			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
 		if(this.target != target) {
 			plc.setTarget(number, target);

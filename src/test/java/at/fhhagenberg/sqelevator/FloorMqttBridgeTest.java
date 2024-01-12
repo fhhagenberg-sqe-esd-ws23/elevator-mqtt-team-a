@@ -1,5 +1,7 @@
 package at.fhhagenberg.sqelevator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.mockito.Mockito.*;
 
 import java.beans.PropertyChangeEvent;
@@ -120,7 +122,9 @@ public class FloorMqttBridgeTest {
 		PropertyChangeEvent event = new PropertyChangeEvent(floor, "invalid", oldValue, newValue);
 		
 		bridge.start();
-		bridge.propertyChange(event);
+		
+		RuntimeException ex =assertThrowsExactly( RuntimeException.class, ()-> bridge.propertyChange(event));	
+		assertEquals("Unknown property name.",ex.getMessage());
 		
 		verify(mqtt, times(1)).publishButtonUp(0, false);
 		verify(mqtt, times(1)).publishButtonDown(0, false);

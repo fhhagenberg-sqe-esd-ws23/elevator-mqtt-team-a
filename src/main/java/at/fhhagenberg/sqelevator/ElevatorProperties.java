@@ -27,15 +27,18 @@ public class ElevatorProperties {
 		String appConfigPath = rootPath + "elevator.properties";
 
 		Properties appProps = new Properties();
-		appProps.load(new FileInputStream(appConfigPath));
+		
+		try(FileInputStream stream = new FileInputStream(appConfigPath)) {
+			appProps.load(stream);
 
-		rmiAddress = appProps.getProperty("rmi_address");
-		rmiPort = Integer.parseInt(appProps.getProperty("rmi_port"));
-		rmiName = appProps.getProperty("rmi_name");
-		mqttAddress = appProps.getProperty("mqtt_address");
-		mqttPort = Integer.parseInt(appProps.getProperty("mqtt_port"));
-		rmiPollingInterval = Integer.parseInt(appProps.getProperty("polling_interval"));
-		exitLine = appProps.getProperty("exit_line");
+			rmiAddress = appProps.getProperty("rmi_address");
+			rmiPort = Integer.parseInt(appProps.getProperty("rmi_port"));
+			rmiName = appProps.getProperty("rmi_name");
+			mqttAddress = appProps.getProperty("mqtt_address");
+			mqttPort = Integer.parseInt(appProps.getProperty("mqtt_port"));
+			rmiPollingInterval = Integer.parseInt(appProps.getProperty("polling_interval"));
+			exitLine = appProps.getProperty("exit_line");			
+		}
 	}
 
 	public String getRmiAddress() {

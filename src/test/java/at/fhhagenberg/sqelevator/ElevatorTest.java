@@ -271,7 +271,7 @@ class ElevatorTest {
 
 		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
 				() -> elevator.getStopRequest(-1));
-		assertEquals("Invalid floor", thrown.getMessage());
+		assertEquals("Invalid floor!", thrown.getMessage());
 	}
 
 	@Test
@@ -285,7 +285,7 @@ class ElevatorTest {
 		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
 				() -> elevator.getStopRequest(15));
 
-		assertEquals("Invalid floor", thrown.getMessage());
+		assertEquals("Invalid floor!", thrown.getMessage());
 	}
 
 	@Test
@@ -309,7 +309,7 @@ class ElevatorTest {
 
 		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
 				() -> elevator.setStopRequest(-1, true));
-		assertEquals("Invalid floor", thrown.getMessage());
+		assertEquals("Invalid floor!", thrown.getMessage());
 	}
 
 	@Test
@@ -323,7 +323,7 @@ class ElevatorTest {
 		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
 				() -> elevator.setStopRequest(15, true));
 
-		assertEquals("Invalid floor", thrown.getMessage());
+		assertEquals("Invalid floor!", thrown.getMessage());
 	}
 
 	@Test
@@ -822,7 +822,7 @@ class ElevatorTest {
 
 		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
 				() -> elevator.getServicesFloor(-2));
-		assertEquals("Invalid floor", thrown.getMessage());
+		assertEquals("Invalid floor!", thrown.getMessage());
 	}
 
 	@Test
@@ -835,7 +835,7 @@ class ElevatorTest {
 
 		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
 				() -> elevator.getServicesFloor(10));
-		assertEquals("Invalid floor", thrown.getMessage());
+		assertEquals("Invalid floor!", thrown.getMessage());
 	}
 
 	@Test
@@ -859,7 +859,7 @@ class ElevatorTest {
 
 		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
 				() -> elevator.setServicesFloor(-1, true));
-		assertEquals("Invalid floor", thrown.getMessage());
+		assertEquals("Invalid floor!", thrown.getMessage());
 	}
 
 	@Test
@@ -872,7 +872,7 @@ class ElevatorTest {
 
 		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
 				() -> elevator.setServicesFloor(15, true));
-		assertEquals("Invalid floor", thrown.getMessage());
+		assertEquals("Invalid floor!", thrown.getMessage());
 	}
 
 	@Test
@@ -967,7 +967,7 @@ class ElevatorTest {
 		Elevator elevator = new Elevator(plc, 0);
 
 		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> elevator.setTarget(5));
-		assertEquals("Invalid floor", thrown.getMessage());
+		assertEquals("Invalid floor!", thrown.getMessage());
 	}
 
 	@Test
@@ -979,7 +979,7 @@ class ElevatorTest {
 		Elevator elevator = new Elevator(plc, 0);
 
 		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> elevator.setTarget(-2));
-		assertEquals("Invalid floor", thrown.getMessage());
+		assertEquals("Invalid floor!", thrown.getMessage());
 	}
 
 	@Test

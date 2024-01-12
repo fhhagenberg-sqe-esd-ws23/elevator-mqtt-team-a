@@ -1,4 +1,4 @@
-package at.fhhagenberg.sqelevator;
+package at.fhhagenberg.sqelevator.mqttadapter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,6 +7,13 @@ import java.io.OutputStreamWriter;
 import java.rmi.RemoteException;
 import java.util.concurrent.ExecutionException;
 
+import at.fhhagenberg.sqelevator.Building;
+import at.fhhagenberg.sqelevator.ElevatorPlcMock;
+import at.fhhagenberg.sqelevator.ElevatorProperties;
+import at.fhhagenberg.sqelevator.ElevatorsMqttAdapter;
+import at.fhhagenberg.sqelevator.ElevatorsMqttClient;
+import at.fhhagenberg.sqelevator.ElevatorsPlcConnection;
+import at.fhhagenberg.sqelevator.ExitCommandThread;
 import sqelevator.IElevator;
 
 /**
@@ -24,7 +31,8 @@ public class Main {
 	 */
 	public static void main(String[] args) throws InterruptedException, IOException, ExecutionException {
 		Main main = new Main();
-		main.run(args, System.in, System.out);
+		ElevatorProperties props = new ElevatorProperties();
+		main.run(args, props, System.in, System.out);
 	}
 
 	/**
@@ -37,9 +45,7 @@ public class Main {
 	 * @throws IOException if reading/parsing of elevator.properties fails
 	 * @throws ExecutionException
 	 */
-	public void run(String[] args, InputStream input, OutputStream output) throws InterruptedException, IOException, ExecutionException {
-		ElevatorProperties props = new ElevatorProperties();
-		
+	public void run(String[] args, ElevatorProperties props, InputStream input, OutputStream output) throws InterruptedException, IOException, ExecutionException {
 		ElevatorsMqttClient mqtt = new ElevatorsMqttClient(props.getMqttAddress(), props.getMqttPort());
 		mqtt.connect();
 		mqtt.publishConnected(false);
@@ -51,7 +57,7 @@ public class Main {
 		writer.write("Enter \"" + props.getExitLine() + "\" to stop the application.\n");
 		writer.flush();
 		
-		if(args.length > 0 && args[0] != null && args[0].contains("rmimock")) {					
+		if(args != null && args.length > 0 && args[0] != null && args[0].contains("rmimock")) {					
 			IElevator plc = new ElevatorPlcMock(2, 2, 5);
 			writer.write("Using RMI API Mock.\n");
 			writer.flush();

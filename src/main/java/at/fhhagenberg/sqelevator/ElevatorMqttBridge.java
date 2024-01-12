@@ -71,6 +71,8 @@ public class ElevatorMqttBridge implements IMqttBridge, PropertyChangeListener, 
 		case Elevator.TARGET_PROPERTY_NAME:
 			publishTarget();
 			break;
+		default:
+			throw new RuntimeException("Unknown property name.");
 		}
 		
 	}
