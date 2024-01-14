@@ -5,12 +5,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
+import java.lang.reflect.Method;
 
 import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
 import com.hivemq.client.mqtt.mqtt3.message.connect.connack.Mqtt3ConnAck;
 import com.hivemq.client.mqtt.mqtt3.message.connect.connack.Mqtt3ConnAckReturnCode;
+import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish;
 import com.hivemq.client.mqtt.mqtt3.message.subscribe.suback.Mqtt3SubAckReturnCode;
 
 /**
@@ -79,6 +82,35 @@ public class ElevatorsMqttClient {
 		connected = code == Mqtt3ConnAckReturnCode.SUCCESS;		
 		return connected;	
 	}
+	
+	
+	@FunctionalInterface
+	public interface MqttCallback {
+	    void processSetMethod(Object[] args, Object additionalParam);
+	}
+	
+    public boolean subscribe_int(String topic, MqttCallback callback, Object... args) throws InterruptedException, ExecutionException {
+        if (!isConnected()) {
+            return false;
+        }
+
+        List<Mqtt3SubAckReturnCode> codes = client.subscribeWith()
+                .topicFilter(topic)
+                .callback(publish -> {
+                    if (publish.getPayload().isPresent()) {
+                        callback.processSetMethod(args, publish.getPayload().get().getInt());
+                    }
+                })
+                .send().get().getReturnCodes();
+        
+		for(Mqtt3SubAckReturnCode code : codes) {
+			if(code == Mqtt3SubAckReturnCode.FAILURE) {
+				return false;
+			}
+		}
+        
+		return true;
+    }
 
 	/**
 	 * Subscribe to all control messages required for the system.
@@ -96,61 +128,37 @@ public class ElevatorsMqttClient {
 		for(int i = 0; i < numberOfElevators; ++i) {
 			final int elevator = i;
 			
-			List<Mqtt3SubAckReturnCode> codes = client.subscribeWith()
-	        .topicFilter(topics.getSetDirectionTopic(elevator))
-	        .callback(publish -> {
-	        	if(publish.getPayload().isPresent()) {
-		        	setDirectionReceived(elevator, publish.getPayload().get().getInt());	        		
-	        	}
-	        })
-	        .send().get().getReturnCodes();
-			
-			for(Mqtt3SubAckReturnCode code : codes) {
-				if(code == Mqtt3SubAckReturnCode.FAILURE) {
-					unsubscribeAll();
-					return false;
-				}
+			if (!subscribe_int(	topics.getSetDirectionTopic(elevator),
+								(args, intval)->{setDirectionReceived((int)args[0],(int)intval);},
+								elevator)) {
+				unsubscribeAll();
+				return false;
 			}
 			
-			codes = client.subscribeWith()
-	        .topicFilter(topics.getSetTargetTopic(elevator))
-	        .callback(publish -> {
-	        	if(publish.getPayload().isPresent()) {
-		        	setTargetReceived(elevator, publish.getPayload().get().getInt());	        		
-	        	}
-	        })
-	        .send().get().getReturnCodes();			
-
-			for(Mqtt3SubAckReturnCode code : codes) {
-				if(code == Mqtt3SubAckReturnCode.FAILURE) {
-					unsubscribeAll();
-					return false;
-				}
+			if (!subscribe_int(	topics.getSetTargetTopic(elevator),
+					(args, intval)->{setTargetReceived((int)args[0],(int)intval);},
+					elevator)) {
+				unsubscribeAll();
+				return false;
 			}
+						
 			
 			for(int j = 0; j < numberOfFloors; ++j) {
 				final int floor = j;
 				
-				codes = client.subscribeWith()
-		        .topicFilter(topics.getSetServicesFloorTopic(elevator, floor))
-		        .callback(publish -> {
-		        	if(publish.getPayload().isPresent()) {
-			        	setServicesFloorReceived(elevator, floor, publish.getPayload().get().getInt() == 1);   		
-		        	}
-		        })
-		        .send().get().getReturnCodes();
 				
-				for(Mqtt3SubAckReturnCode code : codes) {
-					if(code == Mqtt3SubAckReturnCode.FAILURE) {
-						unsubscribeAll();
-						return false;
-					}
+				if (!subscribe_int(	topics.getSetServicesFloorTopic(elevator,floor),
+						(args, intval)->{
+								setServicesFloorReceived((int)args[0], (int)args[1],(int)intval == 1);},
+						elevator,floor)) {
+					unsubscribeAll();
+					return false;
 				}
 			}
 		}
 		
 		return true;
-	}
+	}	
 	
 	/**
 	 * Unsubscribe from all control messages.
@@ -180,6 +188,7 @@ public class ElevatorsMqttClient {
 			listener.setServicesFloor(elevator, floor, service);
 		}
 	}
+	
 
 	/**
 	 * Publish a MQTT message.
@@ -314,6 +323,26 @@ public class ElevatorsMqttClient {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(pressed ? 1 : 0);
 		publishNotRetained(topics.getButtonDownTopic(floor), payload);
 	}
+	
+	
+	public void publishDirectionReceived(int elevator, int direction) {
+		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(direction);
+		publishNotRetained(topics.getDirectionTopic(elevator), payload);
+	}
+
+	public void publishTargetReceived(int elevator, int target) {
+		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(target);
+		publishNotRetained(topics.getSetTargetTopic(elevator), payload);
+	}
+	
+	public void publishServicesFloorReceived(int elevator, int floor, boolean service) {
+		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(service ? 1 : 0);
+		publishNotRetained(topics.getServicesFloorTopic(elevator,floor), payload);
+	}
+	
+	
+	
+	
 
 	/**
 	 * Unsubscribe from all control messages and disconnect the client from the broker.
