@@ -37,6 +37,8 @@ public class AlgorithmMqttAdapter implements IElevator {
 				return false;
 			}
 			
+			System.out.println("Hello");
+			
 			if (!mClient.subscribe_int(topics.getCapacityTopic(elevator),
 					(args, intval)->{
 						mBuilding.getElevators()[(int)args[0]].setCapacity((int)intval);},
@@ -115,12 +117,12 @@ public class AlgorithmMqttAdapter implements IElevator {
 	}
 	
 	public AlgorithmMqttAdapter(ElevatorsMqttClient client, int numElevators, int numFloors, int floorHeight) throws RemoteException, InterruptedException, ExecutionException {
+		this.mBuilding = new Building(this);
 		this.numElevators = numElevators;
 		this.numFloors = numFloors;
 		this.floorHeight = floorHeight;
 		this.mClient = client;
-		this.mBuilding = new Building(this);
-
+		
 		if(!subscribeToStatusMessages())
 		{
 			throw new RuntimeException("could not subscribe to all status messages");
