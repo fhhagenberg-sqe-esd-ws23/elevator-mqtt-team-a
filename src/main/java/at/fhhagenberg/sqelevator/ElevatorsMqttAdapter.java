@@ -69,7 +69,7 @@ public class ElevatorsMqttAdapter {
 		
 		OutputStreamWriter writer = new OutputStreamWriter(output);
 		writer.write("Started Elevators Mqtt Adapter.\n");
-				
+
 		while(!exitThread.isExitRequest()) {
 			Thread.sleep(updateTimerPeriodMs);
 			
