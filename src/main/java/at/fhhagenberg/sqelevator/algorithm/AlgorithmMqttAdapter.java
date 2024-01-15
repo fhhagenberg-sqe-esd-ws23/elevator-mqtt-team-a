@@ -150,7 +150,7 @@ public class AlgorithmMqttAdapter implements IElevator {
 	@Override
 	public int getCommittedDirection(int elevatorNumber) throws RemoteException {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
 		
 		if(!isInitialized) return IElevator.ELEVATOR_DIRECTION_UNCOMMITTED;
