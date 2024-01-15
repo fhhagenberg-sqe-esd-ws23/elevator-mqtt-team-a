@@ -15,7 +15,7 @@ import sqelevator.IElevator;
  */
 public class Elevator {
 	
-	private final static String INVALID_FLOOR = "Invalid floor!";
+	private static final String INVALID_FLOOR = "Invalid floor!";
 
 	private final IElevator plc;
 	private final int number;
@@ -36,37 +36,37 @@ public class Elevator {
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 	/** Name of property CommittedDirection. */
-	public final static String COMMITTED_DIRECTION_PROPERTY_NAME = "CommittedDirection";
+	public static final String COMMITTED_DIRECTION_PROPERTY_NAME = "CommittedDirection";
 
 	/** Name of property Acceleration. */
-	public final static String ACCELERATION_PROPERTY_NAME = "Acceleration";
+	public static final String ACCELERATION_PROPERTY_NAME = "Acceleration";
 
 	/** Name of property StopRequests. */
-	public final static String STOP_REQUESTS_PROPERTY_NAME = "StopRequests";
+	public static final String STOP_REQUESTS_PROPERTY_NAME = "StopRequests";
 
 	/** Name of property Capacity. */
-	public final static String CAPACITY_PROPERTY_NAME = "Capacity";
+	public static final String CAPACITY_PROPERTY_NAME = "Capacity";
 
 	/** Name of property DoorStatus. */
-	public final static String DOOR_STATUS_PROPERTY_NAME = "DoorStatus";
+	public static final String DOOR_STATUS_PROPERTY_NAME = "DoorStatus";
 
 	/** Name of property Floor. */
-	public final static String FLOOR_PROPERTY_NAME = "Floor";
+	public static final String FLOOR_PROPERTY_NAME = "Floor";
 
 	/** Name of property Position. */
-	public final static String POSITION_PROPERTY_NAME = "Position";
+	public static final String POSITION_PROPERTY_NAME = "Position";
 
 	/** Name of property Speed. */
-	public final static String SPEED_PROPERTY_NAME = "Speed";
+	public static final String SPEED_PROPERTY_NAME = "Speed";
 
 	/** Name of property Weight. */
-	public final static String WEIGHT_PROPERTY_NAME = "Weight";
+	public static final String WEIGHT_PROPERTY_NAME = "Weight";
 
 	/** Name of property ServicedFloors. */
-	public final static String SERVICED_FLOORS_PROPERTY_NAME = "ServicedFloors";
+	public static final String SERVICED_FLOORS_PROPERTY_NAME = "ServicedFloors";
 
 	/** Name of property Target. */
-	public final static String TARGET_PROPERTY_NAME = "Target";
+	public static final String TARGET_PROPERTY_NAME = "Target";
 
 	/**
 	 * Create a new Elevator object from the given IElevator API.
@@ -264,7 +264,7 @@ public class Elevator {
 	public void setDoorStatus(int doorStatus) {
 		if(doorStatus != IElevator.ELEVATOR_DOORS_OPEN &&
 				doorStatus != IElevator.ELEVATOR_DOORS_CLOSED) {
-			throw new IllegalArgumentException("Invalid door status");
+			throw new IllegalArgumentException("Invalid door status!");
 		}
 		
 		if(this.doorStatus != doorStatus) {
