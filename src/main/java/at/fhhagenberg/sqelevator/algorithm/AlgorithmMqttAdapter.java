@@ -16,6 +16,7 @@ public class AlgorithmMqttAdapter implements IElevator {
 	private final int numElevators;
 	private final int numFloors;
 	private final int floorHeight;
+	private boolean isInitialized = false;
 	private	Building mBuilding;
 	private ElevatorsMqttClient mClient;
 	private final MqttTopicGenerator topics = new MqttTopicGenerator();
@@ -117,11 +118,13 @@ public class AlgorithmMqttAdapter implements IElevator {
 	}
 	
 	public AlgorithmMqttAdapter(ElevatorsMqttClient client, int numElevators, int numFloors, int floorHeight) throws RemoteException, InterruptedException, ExecutionException {
-		this.mBuilding = new Building(this);
 		this.numElevators = numElevators;
 		this.numFloors = numFloors;
 		this.floorHeight = floorHeight;
 		this.mClient = client;
+		this.mBuilding = new Building(this);
+
+		isInitialized = true;
 		
 		if(!subscribeToStatusMessages())
 		{
@@ -140,6 +143,8 @@ public class AlgorithmMqttAdapter implements IElevator {
 			throw new IllegalArgumentException();
 		}
 		
+		if(!isInitialized) return IElevator.ELEVATOR_DIRECTION_UNCOMMITTED;
+		
 		return mBuilding.getElevators()[elevatorNumber].getCommittedDirection();
 	}
 
@@ -148,6 +153,8 @@ public class AlgorithmMqttAdapter implements IElevator {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
 			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
+		
+		if(!isInitialized) return 0;
 		
 		return mBuilding.getElevators()[elevatorNumber].getAcceleration();
 	}
@@ -162,6 +169,8 @@ public class AlgorithmMqttAdapter implements IElevator {
 			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
 		
+		if(!isInitialized) return false;
+		
 		return mBuilding.getElevators()[elevatorNumber].getStopRequest(floor);
 	}
 
@@ -171,6 +180,8 @@ public class AlgorithmMqttAdapter implements IElevator {
 			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
 		
+		if(!isInitialized) return IElevator.ELEVATOR_DOORS_CLOSED;
+		
 		return mBuilding.getElevators()[elevatorNumber].getDoorStatus();
 	}
 
@@ -179,6 +190,8 @@ public class AlgorithmMqttAdapter implements IElevator {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
 			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
+		
+		if(!isInitialized) return 0;
 		
 		return mBuilding.getElevators()[elevatorNumber].getFloor();
 	}
@@ -194,6 +207,8 @@ public class AlgorithmMqttAdapter implements IElevator {
 			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
 		
+		if(!isInitialized) return 0;
+		
 		return mBuilding.getElevators()[elevatorNumber].getPosition();
 	}
 
@@ -202,6 +217,8 @@ public class AlgorithmMqttAdapter implements IElevator {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
 			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
+		
+		if(!isInitialized) return 0;
 		
 		return mBuilding.getElevators()[elevatorNumber].getSpeed();
 	}
@@ -212,6 +229,8 @@ public class AlgorithmMqttAdapter implements IElevator {
 			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
 		
+		if(!isInitialized) return 0;
+		
 		return mBuilding.getElevators()[elevatorNumber].getWeight();
 	}
 
@@ -220,6 +239,8 @@ public class AlgorithmMqttAdapter implements IElevator {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
 			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
+		
+		if(!isInitialized) return 0;
 		
 		return mBuilding.getElevators()[elevatorNumber].getCapacity();
 	}
@@ -230,6 +251,8 @@ public class AlgorithmMqttAdapter implements IElevator {
 			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
 		
+		if(!isInitialized) return false;
+		
 		return mBuilding.getFloors()[floor].isButtonDown();
 	}
 
@@ -238,6 +261,8 @@ public class AlgorithmMqttAdapter implements IElevator {
 		if(floor < 0 || floor >= numFloors) {
 			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
+		
+		if(!isInitialized) return false;
 		
 		return mBuilding.getFloors()[floor].isButtonUp();
 	}
@@ -262,6 +287,7 @@ public class AlgorithmMqttAdapter implements IElevator {
 			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
 		
+		if(!isInitialized) return false;
 		
 		return mBuilding.getElevators()[elevatorNumber].getServicesFloor(floor);
 	}
@@ -272,6 +298,8 @@ public class AlgorithmMqttAdapter implements IElevator {
 		if(elevatorNumber < 0 || elevatorNumber >= numElevators) {
 			throw new IllegalArgumentException(INVALID_ELEVATOR);
 		}
+		
+		if(!isInitialized) return 0;
 		
 		return mBuilding.getElevators()[elevatorNumber].getTarget();
 	}
@@ -286,6 +314,8 @@ public class AlgorithmMqttAdapter implements IElevator {
 			throw new IllegalArgumentException("Invalid direction!");
 		}
 		
+		if(!isInitialized) return;
+		
 		mBuilding.getElevators()[elevatorNumber].setCommittedDirection(direction);
 		mClient.publishDirection(elevatorNumber, direction);
 	}
@@ -299,6 +329,9 @@ public class AlgorithmMqttAdapter implements IElevator {
 		if(floor < 0 || floor >= numFloors) {
 			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
+		
+		if(!isInitialized) return;
+		
 		mBuilding.getElevators()[elevatorNumber].setServicesFloor(floor, service);
 		mClient.publishServicesFloor(elevatorNumber, floor, service);
 	}
@@ -312,6 +345,8 @@ public class AlgorithmMqttAdapter implements IElevator {
 		if(target < 0 || target >= numFloors) {
 			throw new IllegalArgumentException("Invalid target floor!");
 		}
+		
+		if(!isInitialized) return;
 		
 		mBuilding.getElevators()[elevatorNumber].setTarget(target);
 		mClient.publishTarget(elevatorNumber, target);

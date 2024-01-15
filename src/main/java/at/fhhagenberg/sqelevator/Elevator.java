@@ -172,9 +172,9 @@ public class Elevator {
 			throw new IllegalArgumentException("The commited direction must be 0, 1 or 2!");
 		}
 		if(this.committedDirection != committedDirection) {
-			plc.setCommittedDirection(getNumber(), committedDirection);
 			int oldValue = this.committedDirection;
 			this.committedDirection = committedDirection;
+			plc.setCommittedDirection(getNumber(), committedDirection);
 			this.pcs.firePropertyChange(COMMITTED_DIRECTION_PROPERTY_NAME, oldValue, committedDirection);			
 		}
 	}
@@ -388,9 +388,9 @@ public class Elevator {
 		}
 		
 		if(this.servicedFloors[floor] != service) {
-			plc.setServicesFloors(number, floor, service);
 			boolean[] oldValue = Arrays.copyOf(this.servicedFloors, this.servicedFloors.length);
 			this.servicedFloors[floor] = service;
+			plc.setServicesFloors(number, floor, service);
 			this.pcs.firePropertyChange(SERVICED_FLOORS_PROPERTY_NAME, oldValue, this.servicedFloors);	
 		}
 	}
@@ -413,9 +413,9 @@ public class Elevator {
 			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
 		if(this.target != target) {
-			plc.setTarget(number, target);
 			int oldValue = this.target;
 			this.target = target;
+			plc.setTarget(number, target);
 			this.pcs.firePropertyChange(TARGET_PROPERTY_NAME, oldValue, target);			
 		}
 	}
