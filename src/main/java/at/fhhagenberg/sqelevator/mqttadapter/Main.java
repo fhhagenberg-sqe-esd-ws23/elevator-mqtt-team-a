@@ -78,15 +78,11 @@ public class Main {
 					}
 				}
 				catch(RemoteException e) {
-					try {
-						mqtt.publishConnected(false);
-						writer.write("Lost connection to RMI API: ");
-						writer.write(e.getMessage());
-						writer.write("\nTry to reconnect ...\n");
-						writer.flush();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
+					mqtt.publishConnected(false);
+					writer.write("Lost connection to RMI API: ");
+					writer.write(e.getMessage());
+					writer.write("\nTry to reconnect ...\n");
+					writer.flush();
 				}
 				
 				if(exitThread.isExitRequest()) {

@@ -51,60 +51,53 @@ public class ElevatorsPlcConnection implements IElevator {
 	 * @return whether the connection to the IElevator API was successful (true) or not (false)
 	 */
 	public boolean connect(OutputStream output) {
+		if(output == null) {
+			throw new IllegalArgumentException("Output stream must not be null!");
+		}
+		
 		try {
 			Registry registry = LocateRegistry.getRegistry(props.getRmiAddress(), props.getRmiPort());
-			
-			try {
-				plc = (IElevator) registry.lookup(props.getRmiName());
-				return true;
-			}
-			catch(NotBoundException e) {
-				try {
-					OutputStreamWriter writer = new OutputStreamWriter(output);
-					writer.write("Name not found during registry lookup: ");
-					writer.write(e.getMessage());
-					writer.write("\nRetrying ...\n");
-					writer.flush();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			}
-			catch(ServerException | AccessException e) {
-				try {
-					OutputStreamWriter writer = new OutputStreamWriter(output);
-					writer.write("Access denied during registry lookup: ");
-					writer.write(e.getMessage());
-					writer.write("\nRetrying ...\n");
-					writer.flush();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			}
-			catch(RemoteException e) {
-				try {
-					OutputStreamWriter writer = new OutputStreamWriter(output);
-					writer.write("Error during registry lookup: ");
-					writer.write(e.getMessage());
-					writer.write("\nRetrying ...\n");
-					writer.flush();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			}
+			return lookupRemoteObject(registry, output);
 		}
 		catch(RemoteException e) {
-			try {
-				OutputStreamWriter writer = new OutputStreamWriter(output);
-				writer.write("Error retrieving registry: ");
-				writer.write(e.getMessage());
-				writer.write("\nRetrying ...\n");
-				writer.flush();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
+			writeErrorOutput(output, e, "Error retrieving registry: ");
 		}
 		
 		return false;
+	}
+
+	private boolean lookupRemoteObject(Registry registry, OutputStream output) {
+		assert(registry != null);
+		assert(output != null);
+		
+		try {
+			plc = (IElevator) registry.lookup(props.getRmiName());
+			return true;
+		}
+		catch(NotBoundException e) {
+			writeErrorOutput(output, e, "Name not found during registry lookup: ");
+		}
+		catch(ServerException | AccessException e) {
+			writeErrorOutput(output, e, "Access denied during registry lookup: ");
+		}
+		catch(RemoteException e) {
+			writeErrorOutput(output, e, "Error during registry lookup: ");
+		}
+		
+		return false;
+	}
+
+	private void writeErrorOutput(OutputStream output, Exception e, String label) {
+		assert(label != null);
+		
+		try {
+			OutputStreamWriter writer = new OutputStreamWriter(output);
+			writer.write(label);
+			writer.write(e.getMessage());
+			writer.flush();
+		} catch (IOException e1) {
+			return;
+		}
 	}
 
 	@Override

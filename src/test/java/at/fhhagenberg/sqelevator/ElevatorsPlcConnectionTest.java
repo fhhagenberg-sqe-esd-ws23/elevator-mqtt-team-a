@@ -17,6 +17,18 @@ import org.junit.jupiter.api.Test;
 import sqelevator.IElevator;
 
 class ElevatorsPlcConnectionTest {
+	
+	@Test
+	void testConnectNullOutputStream() {
+		ElevatorProperties props = mock(ElevatorProperties.class);
+		when(props.getRmiAddress()).thenReturn("localhost");
+		when(props.getRmiPort()).thenReturn(65535);
+		when(props.getRmiName()).thenReturn("none");
+		ElevatorsPlcConnection conn = new ElevatorsPlcConnection(props);
+		
+		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> conn.connect(null));
+		assertEquals("Output stream must not be null!", thrown.getMessage());
+	}
 
 	@Test
 	void testConnectMissingRegistry() {

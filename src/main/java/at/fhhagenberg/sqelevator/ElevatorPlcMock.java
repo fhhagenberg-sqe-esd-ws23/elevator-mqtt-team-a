@@ -11,8 +11,8 @@ import sqelevator.IElevator;
  */
 public class ElevatorPlcMock implements IElevator {
 
-	private final static String INVALID_ELEVATOR = "Invalid elevator number!";
-	private final static String INVALID_FLOOR = "Invalid floor!";
+	private static final String INVALID_ELEVATOR = "Invalid elevator number!";
+	private static final String INVALID_FLOOR = "Invalid floor!";
 	
 	private final int numElevators;
 	private final int numFloors;

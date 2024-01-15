@@ -5,30 +5,30 @@ package at.fhhagenberg.sqelevator;
  */
 public class MqttTopicGenerator {
 
-	public final static char TOPIC_LEVEL_SEPERATOR = '/';
-	
-	public final static String TOPIC_LEVEL_BUILDING = "building";
-	public final static String TOPIC_LEVEL_ELEVATOR = "elevator";
-	public final static String TOPIC_LEVEL_FLOOR = "floor";
-	public final static String TOPIC_LEVEL_COUNT = "count";
-	public final static String TOPIC_LEVEL_HEIGHT = "height";
-	public final static String TOPIC_LEVEL_UP = "up";
-	public final static String TOPIC_LEVEL_DOWN = "down";
-	public final static String TOPIC_LEVEL_DIRECTION = "direction";
-	public final static String TOPIC_LEVEL_ACCELERATION  = "acceleration";
-	public final static String TOPIC_LEVEL_BUTTON = "button";
-	public final static String TOPIC_LEVEL_CAPACITY = "capacity";
-	public final static String TOPIC_LEVEL_DOORS = "doors";
-	public final static String TOPIC_LEVEL_POSITION = "position";
-	public final static String TOPIC_LEVEL_SPEED = "speed";
-	public final static String TOPIC_LEVEL_WEIGHT = "weight";
-	public final static String TOPIC_LEVEL_SERVICES_FLOOR = "servicesfloor";
-	public final static String TOPIC_LEVEL_TARGET = "target";
-	public final static String TOPIC_LEVEL_SET_DIRECTION = "setdirection";
-	public final static String TOPIC_LEVEL_SET_SERVICES_FLOOR = "setservicesFloor";
-	public final static String TOPIC_LEVEL_SET_TARGET = "setTarget";
-	public final static String TOPIC_LEVEL_CONNECTED = "connected";
-		
+	public static final char TOPIC_LEVEL_SEPERATOR = '/';
+
+	public static final String TOPIC_LEVEL_BUILDING = "building";
+	public static final String TOPIC_LEVEL_ELEVATOR = "elevator";
+	public static final String TOPIC_LEVEL_FLOOR = "floor";
+	public static final String TOPIC_LEVEL_COUNT = "count";
+	public static final String TOPIC_LEVEL_HEIGHT = "height";
+	public static final String TOPIC_LEVEL_UP = "up";
+	public static final String TOPIC_LEVEL_DOWN = "down";
+	public static final String TOPIC_LEVEL_DIRECTION = "direction";
+	public static final String TOPIC_LEVEL_ACCELERATION  = "acceleration";
+	public static final String TOPIC_LEVEL_BUTTON = "button";
+	public static final String TOPIC_LEVEL_CAPACITY = "capacity";
+	public static final String TOPIC_LEVEL_DOORS = "doors";
+	public static final String TOPIC_LEVEL_POSITION = "position";
+	public static final String TOPIC_LEVEL_SPEED = "speed";
+	public static final String TOPIC_LEVEL_WEIGHT = "weight";
+	public static final String TOPIC_LEVEL_SERVICES_FLOOR = "servicesfloor";
+	public static final String TOPIC_LEVEL_TARGET = "target";
+	public static final String TOPIC_LEVEL_SET_DIRECTION = "setdirection";
+	public static final String TOPIC_LEVEL_SET_SERVICES_FLOOR = "setservicesFloor";
+	public static final String TOPIC_LEVEL_SET_TARGET = "setTarget";
+	public static final String TOPIC_LEVEL_CONNECTED = "connected";
+
 	public String getTopic(String... topicLevels) {
 		if(topicLevels.length == 0) {
 			return "";
@@ -43,11 +43,11 @@ public class MqttTopicGenerator {
 		
 		return sb.toString();
 	}
-	
+
 	public String getElevatorTopic() {
 		return getTopic(TOPIC_LEVEL_BUILDING, TOPIC_LEVEL_ELEVATOR);
 	}
-	
+
 	public String getFloorTopic() {
 		return getTopic(TOPIC_LEVEL_BUILDING, TOPIC_LEVEL_FLOOR);		
 	}
