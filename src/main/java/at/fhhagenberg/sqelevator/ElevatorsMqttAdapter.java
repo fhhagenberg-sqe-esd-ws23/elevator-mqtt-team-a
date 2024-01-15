@@ -61,15 +61,17 @@ public class ElevatorsMqttAdapter {
 	 * @param output output stream to write information to
 	 */
 	public void run(ExitCommandThread exitThread, OutputStream output) throws InterruptedException, IOException, ExecutionException {
-		mqtt.unsubscribeAll();
 		mqtt.subscribeToControlMessages(building.getElevatorCount(), building.getFloorCount());
+		mqtt.publishNumberOfElevators(building.getElevatorCount());
+		mqtt.publishNumberOfFloors(building.getFloorCount());
+		mqtt.publishFloorHeight(building.floorHeight());
 
 		stopMqttBridges();
 		startMqttBridges();
 		
 		OutputStreamWriter writer = new OutputStreamWriter(output);
 		writer.write("Started Elevators Mqtt Adapter.\n");
-				
+
 		while(!exitThread.isExitRequest()) {
 			Thread.sleep(updateTimerPeriodMs);
 			

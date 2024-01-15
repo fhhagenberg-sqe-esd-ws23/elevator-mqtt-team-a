@@ -21,7 +21,7 @@ import com.hivemq.client.mqtt.mqtt3.message.subscribe.suback.Mqtt3SubAckReturnCo
 public class ElevatorsMqttClient {
 	
 	private final Mqtt3AsyncClient client;
-	private final HashSet<IMqttMessageListener> listeners = new HashSet<IMqttMessageListener>();
+	private final HashSet<IMqttMessageListener> listeners = new HashSet<>();
 	private final MqttTopicGenerator topics = new MqttTopicGenerator();
 	private boolean connected = false;
 
@@ -187,7 +187,7 @@ public class ElevatorsMqttClient {
 	 * @param payload the payload to publish the message with
 	 * @param retain whether the message should be a retained message (true) or not (false)
 	 */
-	public void publish(String topic, ByteBuffer payload, boolean retain) {
+	public boolean publish(String topic, ByteBuffer payload, boolean retain) {
 		try {
 			client.publishWith()
 			.topic(topic)
@@ -195,21 +195,12 @@ public class ElevatorsMqttClient {
 			.qos(MqttQos.EXACTLY_ONCE)
 			.retain(retain)
 			.send()
-	        .whenComplete((mqtt3Publish, throwable) -> {
-	            if (throwable != null) {
-	                // TODO: Handle failure to publish
-	            } else {
-	                // TODO: Handle successful publish, e.g. logging or incrementing a metric kek
-	            }
-	        })
 			.get();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (InterruptedException | ExecutionException e) {
+			return false;
 		}
+		
+		return true;
 	}
 
 	/**

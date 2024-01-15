@@ -35,7 +35,23 @@ class ElevatorsMqttAdapterTest {
 		assertEquals(9, adapter.getUpdaters().length);
 	}
 
-	
+	@Test
+	void testNumberOfBridges() throws RemoteException {
+		IElevator plc = mock(IElevator.class);
+		ElevatorsMqttClient mqtt = mock(ElevatorsMqttClient.class);
+		when(plc.getElevatorNum()).thenReturn(3);
+		when(plc.getFloorNum()).thenReturn(4);
+		when(plc.getElevatorDoorStatus(0)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
+		when(plc.getElevatorDoorStatus(1)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
+		when(plc.getElevatorDoorStatus(2)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
+		when(plc.getElevatorDoorStatus(3)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
+		Building building = new Building(plc);
+		
+		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(building, mqtt);
+		
+		assertEquals(7, adapter.getBridges().length);
+	}
+
 	@Test
 	void testUpdateTimerPeriodSetAndGet() throws RemoteException {
 		IElevator plc = mock(IElevator.class);
@@ -49,7 +65,7 @@ class ElevatorsMqttAdapterTest {
 		
 		assertEquals(155, adapter.getUpdateTimerPeriodMs());
 	}
-	
+
 	@Test
 	void testUpdateTimerPeriodSetException() throws RemoteException {
 		IElevator plc = mock(IElevator.class);

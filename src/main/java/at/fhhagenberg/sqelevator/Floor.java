@@ -22,10 +22,10 @@ public class Floor {
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 	/** Name of property ButtonDown. */
-	public final static String BUTTON_DOWN_PROPERTY_NAME = "ButtonDown";
+	public static final String BUTTON_DOWN_PROPERTY_NAME = "ButtonDown";
 
 	/** Name of property ButtonUp. */
-	public final static String BUTTON_UP_PROPERTY_NAME = "ButtonUp";
+	public static final String BUTTON_UP_PROPERTY_NAME = "ButtonUp";
 
 	/**
 	 * Create a new Floor object from the given IElevator API.

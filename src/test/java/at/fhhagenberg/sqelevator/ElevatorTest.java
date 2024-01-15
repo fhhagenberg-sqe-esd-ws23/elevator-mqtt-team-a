@@ -446,6 +446,18 @@ class ElevatorTest {
 	}
 
 	@Test
+	void testSetDoorStatus_Invalid() throws RemoteException {
+		IElevator plc = mock(IElevator.class);
+		when(plc.getFloorNum()).thenReturn(10);
+		when(plc.getElevatorDoorStatus(0)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
+
+		Elevator elevator = new Elevator(plc, 0);
+
+		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> elevator.setDoorStatus(5) );
+		assertEquals("Invalid door status!", thrown.getMessage());
+	}
+
+	@Test
 	void testDoorStatusChanged() throws RemoteException {
 		IElevator plc = mock(IElevator.class);
 		when(plc.getElevatorDoorStatus(0)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
