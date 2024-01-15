@@ -85,7 +85,9 @@ public class ElevatorMqttBridge implements IMqttBridge, PropertyChangeListener, 
 	 */
 	@Override
 	public void setCommittedDirection(int elevator, int direction) {
+		
 		if(started && elevator == this.elevator.getNumber()) {
+			
 			try {
 				this.elevator.setCommittedDirection(direction);
 			} catch (RemoteException e) {
@@ -139,6 +141,7 @@ public class ElevatorMqttBridge implements IMqttBridge, PropertyChangeListener, 
 		
 		started = true;
 		elevator.addPropertyChangeListener(this);
+		mqtt.addListener(this);
 		publishCommittedDirection();
 		publishAcceleration();
 		publishButtonsPressed();
@@ -158,6 +161,7 @@ public class ElevatorMqttBridge implements IMqttBridge, PropertyChangeListener, 
 	public void stop() {
 		started = false;
 		elevator.removePropertyChangeListener(this);
+		mqtt.removeListener(this);
 	}
 	
 	private void publishCommittedDirection() {

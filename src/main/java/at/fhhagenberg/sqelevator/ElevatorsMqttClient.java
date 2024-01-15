@@ -96,6 +96,7 @@ public class ElevatorsMqttClient {
 
         List<Mqtt3SubAckReturnCode> codes = client.subscribeWith()
                 .topicFilter(topic)
+                .qos(MqttQos.EXACTLY_ONCE)
                 .callback(publish -> {
                     if (publish.getPayload().isPresent()) {
                         callback.processSetMethod(args, publish.getPayload().get().getInt());
@@ -129,14 +130,16 @@ public class ElevatorsMqttClient {
 			final int elevator = i;
 			
 			if (!subscribe_int(	topics.getSetDirectionTopic(elevator),
-								(args, intval)->{setDirectionReceived((int)args[0],(int)intval);},
+								(args, intval)->{
+									setDirectionReceived((int)args[0],(int)intval);},
 								elevator)) {
 				unsubscribeAll();
 				return false;
 			}
 			
 			if (!subscribe_int(	topics.getSetTargetTopic(elevator),
-					(args, intval)->{setTargetReceived((int)args[0],(int)intval);},
+					(args, intval)->{
+						setTargetReceived((int)args[0],(int)intval);},
 					elevator)) {
 				unsubscribeAll();
 				return false;
@@ -208,7 +211,6 @@ public class ElevatorsMqttClient {
 		} catch (InterruptedException | ExecutionException e) {
 			return false;
 		}
-		
 		return true;
 	}
 
@@ -226,9 +228,10 @@ public class ElevatorsMqttClient {
 	 * @param topic the topic to publish the message to
 	 * @param payload the payload to publish the message with
 	 */
-	public void publishNotRetained(String topic, ByteBuffer payload) {
-		publish(topic, payload, false);
-	}
+	/*
+	 * public void publishNotRetained(String topic, ByteBuffer payload) {
+	 * publish(topic, payload, false); }
+	 */
 	
 	public void publishNumberOfElevators(int numberOfElevators) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(numberOfElevators);		
@@ -252,83 +255,83 @@ public class ElevatorsMqttClient {
 
 	public void publishDirection(int elevator, int direction) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(direction);
-		publishNotRetained(topics.getDirectionTopic(elevator), payload);
+		publishRetained(topics.getDirectionTopic(elevator), payload);
 	}
 	
 	public void publishAcceleration(int elevator, int acceleration) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(acceleration);
-		publishNotRetained(topics.getAccelerationTopic(elevator), payload);
+		publishRetained(topics.getAccelerationTopic(elevator), payload);
 	}
 	
 	public void publishButtonPressed(int elevator, int floor, boolean button) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(button ? 1 : 0);
-		publishNotRetained(topics.getButtonTopic(elevator, floor), payload);
+		publishRetained(topics.getButtonTopic(elevator, floor), payload);
 	}
 	
 	public void publishCapacity(int elevator, int capacity) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(capacity);
-		publishNotRetained(topics.getCapacityTopic(elevator), payload);
+		publishRetained(topics.getCapacityTopic(elevator), payload);
 	}
 	
 	public void publishDoors(int elevator, int doors) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(doors);
-		publishNotRetained(topics.getDoorsTopic(elevator), payload);
+		publishRetained(topics.getDoorsTopic(elevator), payload);
 	}
 	
 	public void publishFloor(int elevator, int floor) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(floor);
-		publishNotRetained(topics.getFloorTopic(elevator), payload);
+		publishRetained(topics.getFloorTopic(elevator), payload);
 	}
 	
 	public void publishPosition(int elevator, int position) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(position);
-		publishNotRetained(topics.getPositionTopic(elevator), payload);
+		publishRetained(topics.getPositionTopic(elevator), payload);
 	}
 	
 	public void publishSpeed(int elevator, int speed) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(speed);
-		publishNotRetained(topics.getSpeedTopic(elevator), payload);
+		publishRetained(topics.getSpeedTopic(elevator), payload);
 	}
 	
 	public void publishWeight(int elevator, int weight) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(weight);
-		publishNotRetained(topics.getWeightTopic(elevator), payload);
+		publishRetained(topics.getWeightTopic(elevator), payload);
 	}
 	
 	public void publishServicesFloor(int elevator, int floor, boolean service) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(service ? 1 : 0);
-		publishNotRetained(topics.getServicesFloorTopic(elevator, floor), payload);
+		publishRetained(topics.getServicesFloorTopic(elevator, floor), payload);
 	}
 		
 	public void publishTarget(int elevator, int target) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(target);
-		publishNotRetained(topics.getTargetTopic(elevator), payload);
+		publishRetained(topics.getTargetTopic(elevator), payload);
 	}
 	
 	public void publishButtonUp(int floor, boolean pressed) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(pressed ? 1 : 0);
-		publishNotRetained(topics.getButtonUpTopic(floor), payload);
+		publishRetained(topics.getButtonUpTopic(floor), payload);
 	}
 		
 	public void publishButtonDown(int floor, boolean pressed) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(pressed ? 1 : 0);
-		publishNotRetained(topics.getButtonDownTopic(floor), payload);
+		publishRetained(topics.getButtonDownTopic(floor), payload);
 	}
 	
 	
 	public void publishDirectionReceived(int elevator, int direction) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(direction);
-		publishNotRetained(topics.getDirectionTopic(elevator), payload);
+		publishRetained(topics.getSetDirectionTopic(elevator), payload);
 	}
 
 	public void publishTargetReceived(int elevator, int target) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(target);
-		publishNotRetained(topics.getSetTargetTopic(elevator), payload);
+		publishRetained(topics.getSetTargetTopic(elevator), payload);
 	}
 	
 	public void publishServicesFloorReceived(int elevator, int floor, boolean service) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(service ? 1 : 0);
-		publishNotRetained(topics.getServicesFloorTopic(elevator,floor), payload);
+		publishRetained(topics.getSetServicesFloorTopic(elevator,floor), payload);
 	}
 	
 	

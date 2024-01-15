@@ -55,6 +55,7 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
 		for(int i = 0; i < mBuilding.getFloorCount(); ++i) {
 			mBuilding.getFloors()[i].addPropertyChangeListener(this);
 		}
+		
 	}
 	
 	

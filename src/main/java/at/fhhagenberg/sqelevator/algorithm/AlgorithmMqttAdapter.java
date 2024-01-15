@@ -38,8 +38,6 @@ public class AlgorithmMqttAdapter implements IElevator {
 				return false;
 			}
 			
-			System.out.println("Hello");
-			
 			if (!mClient.subscribe_int(topics.getCapacityTopic(elevator),
 					(args, intval)->{
 						mBuilding.getElevators()[(int)args[0]].setCapacity((int)intval);},
@@ -90,6 +88,18 @@ public class AlgorithmMqttAdapter implements IElevator {
 				if (!mClient.subscribe_int(topics.getButtonTopic(elevator,floor),
 						(args, intval)->{
 							mBuilding.getElevators()[(int)args[0]].setStopRequest((int)args[1],(int)intval == 1);},
+						elevator,floor)) {
+					return false;
+				}
+				
+				if (!mClient.subscribe_int(topics.getServicesFloorTopic(elevator,floor),
+						(args, intval)->{
+							try {
+								mBuilding.getElevators()[(int)args[0]].setServicesFloor((int)args[1], (int)intval == 1);
+							} catch (RemoteException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}},
 						elevator,floor)) {
 					return false;
 				}
@@ -317,7 +327,7 @@ public class AlgorithmMqttAdapter implements IElevator {
 		if(!isInitialized) return;
 		
 		mBuilding.getElevators()[elevatorNumber].setCommittedDirection(direction);
-		mClient.publishDirection(elevatorNumber, direction);
+		mClient.publishDirectionReceived(elevatorNumber, direction);
 	}
 
 	@Override
@@ -333,7 +343,7 @@ public class AlgorithmMqttAdapter implements IElevator {
 		if(!isInitialized) return;
 		
 		mBuilding.getElevators()[elevatorNumber].setServicesFloor(floor, service);
-		mClient.publishServicesFloor(elevatorNumber, floor, service);
+		mClient.publishServicesFloorReceived(elevatorNumber, floor, service);
 	}
 
 	@Override
@@ -349,7 +359,7 @@ public class AlgorithmMqttAdapter implements IElevator {
 		if(!isInitialized) return;
 		
 		mBuilding.getElevators()[elevatorNumber].setTarget(target);
-		mClient.publishTarget(elevatorNumber, target);
+		mClient.publishTargetReceived(elevatorNumber, target);
 	}
 
 	@Override

@@ -36,25 +36,39 @@ public class Main {
 		
 		
 		writer.write("Waiting for initial mqtt messages to arrive.\n");
+		writer.flush();
+		
+		mqtt.connect();
 		
 		if (!mqtt.subscribe_int(topics.getNumElevatorsTopic(),
 				(args0, intval)->{
-					numElevators = (int)intval;},0)) {
+					numElevators = (int)intval;})) {
+			writer.write("num elevator topic subscription failed");
+			return;
 		}
 		
 		if (!mqtt.subscribe_int(topics.getNumFloorsTopic(),
 				(args0, intval)->{
-					numFloors = (int)intval;},0)) {
+					numFloors = (int)intval;})) {
+			writer.write("num Floors topic subscription failed");
+			return;
 		}
 		
 		if (!mqtt.subscribe_int(topics.getFloorHeightTopic(),
 				(args0, intval)->{
-					floorHeight = (int)intval;},0)) {
+					floorHeight = (int)intval;})) {
+			writer.write("floor height topic subscription failed");
+			return;
 		}
+		
+
 		
 		while(numElevators == -1 || numFloors == -1 || floorHeight == -1){
 			Thread.sleep(100);
 		}
+		
+		writer.write("got initial data...");
+		writer.flush();
 		
 		AlgorithmMqttAdapter mqttAdapter = new AlgorithmMqttAdapter(mqtt,numElevators, numFloors, floorHeight);
 		

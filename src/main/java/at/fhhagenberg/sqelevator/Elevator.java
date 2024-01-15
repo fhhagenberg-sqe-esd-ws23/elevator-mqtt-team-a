@@ -263,7 +263,10 @@ public class Elevator {
 	 */
 	public void setDoorStatus(int doorStatus) {
 		if(doorStatus != IElevator.ELEVATOR_DOORS_OPEN &&
-				doorStatus != IElevator.ELEVATOR_DOORS_CLOSED) {
+				doorStatus != IElevator.ELEVATOR_DOORS_CLOSED &&
+				doorStatus != IElevator.ELEVATOR_DOORS_OPENING &&
+				doorStatus != IElevator.ELEVATOR_DOORS_CLOSING
+				) {
 			throw new IllegalArgumentException("Invalid door status!");
 		}
 		
