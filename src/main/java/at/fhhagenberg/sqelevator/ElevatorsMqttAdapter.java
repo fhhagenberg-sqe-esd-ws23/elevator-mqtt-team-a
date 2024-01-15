@@ -63,6 +63,9 @@ public class ElevatorsMqttAdapter {
 	public void run(ExitCommandThread exitThread, OutputStream output) throws InterruptedException, IOException, ExecutionException {
 		mqtt.unsubscribeAll();
 		mqtt.subscribeToControlMessages(building.getElevatorCount(), building.getFloorCount());
+		mqtt.publishNumberOfElevators(building.getElevatorCount());
+		mqtt.publishNumberOfFloors(building.getFloorCount());
+		mqtt.publishFloorHeight(building.floorHeight());
 
 		stopMqttBridges();
 		startMqttBridges();
