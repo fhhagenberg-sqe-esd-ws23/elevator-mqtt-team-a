@@ -101,7 +101,7 @@
 				<configuration>
 			        <excludes>
 			       		<param>**.*ElevatorPlcMock</param>
-			       		<param>**.*Main</param>
+			       		<param>**.*ElevatorProperties</param>
 			       </excludes>
 			    </configuration>
 				<executions>
@@ -128,7 +128,7 @@
 					<excludedClasses>
 						<param>**.*ElevatorsMqttClient</param>
 						<param>**.*ElevatorPlcMock</param>
-						<param>**.*Main</param>
+						<param>**.*ElevatorProperties</param>
 					</excludedClasses>
 				</configuration>
 				<dependencies>

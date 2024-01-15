@@ -89,7 +89,7 @@ public class ElevatorMqttBridge implements IMqttBridge, PropertyChangeListener, 
 			try {
 				this.elevator.setCommittedDirection(direction);
 			} catch (RemoteException e) {
-				e.printStackTrace();
+				// Ignore RemoteException in this case, will be thrown at the next update cycle
 			}
 		}
 	}
@@ -107,7 +107,7 @@ public class ElevatorMqttBridge implements IMqttBridge, PropertyChangeListener, 
 			try {
 				this.elevator.setServicesFloor(floor, service);
 			} catch (RemoteException e) {
-				e.printStackTrace();
+				// Ignore RemoteException in this case, will be thrown at the next update cycle
 			}
 		}
 	}
@@ -124,7 +124,7 @@ public class ElevatorMqttBridge implements IMqttBridge, PropertyChangeListener, 
 			try {
 				this.elevator.setTarget(target);
 			} catch (RemoteException e) {
-				e.printStackTrace();
+				// Ignore RemoteException in this case, will be thrown at the next update cycle
 			}
 		}
 	}

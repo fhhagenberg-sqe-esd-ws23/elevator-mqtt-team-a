@@ -13,6 +13,7 @@ public class Building {
 
 	private final Elevator[] elevators;
 	private final Floor[] floors;
+	private final int floorHeight;
 
 	/**
 	 * Create a new building from the given IElevator API.
@@ -26,6 +27,7 @@ public class Building {
 		
 		int numElevators = plc.getElevatorNum();
 		int numFloors = plc.getFloorNum();
+		floorHeight = plc.getFloorHeight();
 		elevators = new Elevator[numElevators];
 		floors = new Floor[numFloors];
 		
@@ -72,4 +74,11 @@ public class Building {
 		return floors.length;
 	}
 	
+	/**
+	 * Provides the height of the floors in the building.
+	 * @return the height of the floors in the building
+	 */
+	public int floorHeight() {
+		return floorHeight;
+	}
 }
