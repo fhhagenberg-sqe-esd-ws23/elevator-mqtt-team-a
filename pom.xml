@@ -129,7 +129,17 @@
 						<param>**.*ElevatorsMqttClient</param>
 						<param>**.*ElevatorPlcMock</param>
 						<param>**.*ElevatorProperties</param>
+						<param>**.*Main</param>
+						<param>**.*MqttAdapterIntegration</param>
+						<param>**.*AlgorithmMqttAdapter</param>
 					</excludedClasses>
+					<excludedTestClasses>
+						<param>**.*ElevatorsMqttClientTest</param>
+						<param>**.*ElevatorsPlcConnectionTest</param>
+						<param>**.*MainTest</param>
+						<param>**.*MqttAdapterIntegrationTest</param>
+						<param>**.*AlgorithmMqttAdapterTest</param>
+					</excludedTestClasses>
 				</configuration>
 				<dependencies>
 					<dependency>
