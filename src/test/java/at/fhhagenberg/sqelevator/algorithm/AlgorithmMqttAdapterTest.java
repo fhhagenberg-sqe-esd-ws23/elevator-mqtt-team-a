@@ -49,6 +49,7 @@ public class AlgorithmMqttAdapterTest {
 	@Test
 	void testAlgorithmMqttAdapter() throws RemoteException, InterruptedException, ExecutionException {
 		AlgorithmMqttAdapter adapter = new AlgorithmMqttAdapter(mqtt, 1, 2, 2);
+		assertTrue(adapter.subscribeToStatusMessages());
 	}
 
 	@Test
