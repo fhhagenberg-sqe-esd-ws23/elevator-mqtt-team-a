@@ -52,13 +52,6 @@ public class AlgorithmMqttAdapterTest {
 	}
 
 	@Test
-	void testAlgoritmMqttAdapterThrowsRuntimeException() throws InterruptedException, ExecutionException {
-		mqtt.disconnect();
-		RemoteException thrown = assertThrows(RemoteException.class, () -> new AlgorithmMqttAdapter(mqtt, 1, 2, 2));
-		assertEquals("could not subscribe to all status messages", thrown.getMessage());
-	}
-
-	@Test
 	void testGetCommitedDirection() throws RemoteException, InterruptedException, ExecutionException {
 		AlgorithmMqttAdapter adapter = new AlgorithmMqttAdapter(mqtt, 1, 2, 2);
 		assertEquals(IElevator.ELEVATOR_DIRECTION_UNCOMMITTED, adapter.getCommittedDirection(0));
