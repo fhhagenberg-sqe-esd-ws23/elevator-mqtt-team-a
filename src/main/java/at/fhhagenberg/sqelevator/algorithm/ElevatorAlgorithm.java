@@ -26,6 +26,13 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
 
     private Dictionary<Object, Dictionary<String , Boolean>> mProps = new Hashtable<>();
 
+    /**
+     * Helper to wait for all message topics
+     * 
+     * @param none
+     * @return boolean returns true if all topics were received
+     */
+    
     private boolean checkInitialStatus() {
     	Enumeration<Object> e = mProps.keys();
 
@@ -44,6 +51,14 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
 
     	return true;
     }
+    
+    /**
+     * sets the preferred method of startup
+     * Algorithm waits until messages of all topics have been received if enabled
+     * 
+     * @param status the status to set
+     * @return void
+     */
     
     public void setWaitForInitialStatusReceived(boolean status)
     {
@@ -73,6 +88,13 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
 			}
 		}
 	}
+	
+    /**
+     * ElevatorAlgorithm constructor
+     *
+     * @param mqttAdapter Adapter to connect to the mqtt client
+     * @return none
+     */
 
 	public ElevatorAlgorithm(AlgorithmMqttAdapter mqttAdapter) {		
 		mAdapter = mqttAdapter;
@@ -173,8 +195,9 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
      * get a new target for the current elevator
      *
      * @param elevator current elevator to handle the targets for
-     * @param upPressed current elevator to handle the targets for
-     * @return true if standing on the target floor, false otherwise
+     * @param upPressed up buttons of each floor
+     * @param downPressed down buttons of each floor
+     * @return void
      */
     
     private void handleElevatorTargets(Elevator elevator, boolean[] upPressed, boolean[] downPressed) throws RemoteException {
@@ -235,11 +258,25 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
         }
     }
 
+    
+    /**
+     * search for new target floor
+     *
+     * @param elevator current elevator to handle the targets for
+     * @param currentFloor current floor as search start point
+     * @param pressedArray all up/down buttons of each floor
+     * @param targetArray target arrays for up/down targets
+     * @param stops contains all stop requests for current elevator
+     * @param isUpwards specifies the direction
+     * @return searchAndHandleStopsReturn contains new current floor 
+     * 		   and information if the search is done
+     */
 
     private searchAndHandleStopsReturn searchAndHandleStops(Elevator elevator, int currentFloor, boolean[] pressedArray, boolean[] targetArray, boolean[] stops, boolean isUpwards) throws RemoteException {
         int floorIterator = isUpwards ? currentFloor + 1 : currentFloor - 1;
         boolean breakRequest = false;
         
+        /* search for stops */
         while ((isUpwards && floorIterator < elevator.getNumberOfFloors()) || (!isUpwards && floorIterator >= 0)) {
             if (handleFloorStopRequest(elevator, floorIterator, pressedArray, targetArray, stops)) {
                 break;
@@ -248,6 +285,7 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
             floorIterator += isUpwards ? 1 : -1;
         }
         
+        /* no stop found when searching upwards, search downwards */
         if(isUpwards && floorIterator == elevator.getNumberOfFloors())
         {
             mUp[elevator.getNumber()] = false;
@@ -256,6 +294,7 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
             }
             
         }
+        /* same goes for downwards */
         else if (!isUpwards &&  floorIterator == -1)
         {
             mUp[elevator.getNumber()] = true;
@@ -263,6 +302,7 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
                 currentFloor = floorIterator;
             }
         }
+        /* stop found! */
         else
         {
         	breakRequest = true;
@@ -271,6 +311,18 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
         return new searchAndHandleStopsReturn(currentFloor,breakRequest);
     }
 
+    
+    /**
+     * search for a new stop
+     *
+     * @param elevator current elevator to handle the targets for
+     * @param floor floor to check as stop
+     * @param pressedArray all up/down buttons of each floor
+     * @param targetArray target arrays for up/down targets
+     * @param stops contains all stop requests for current elevator
+     * @return boolean returns true if stop was found, false otherwise
+     */
+    
     private boolean handleFloorStopRequest(Elevator elevator, int floor, boolean[] pressedArray, boolean[] targetArray, boolean[] stops) throws RemoteException {
     	if (((pressedArray[floor] && !targetArray[floor]) || stops[floor]) &&
                 elevator.getServicesFloor(floor)) {
@@ -282,6 +334,13 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
         }
         return false;
     }
+    
+    /**
+     * publish the new direction based on the target
+     *
+     * @param elevator current elevator to handle the targets for
+     * @return void
+     */
     
     private void updateDirectionAndClearTargets(Elevator elevator) throws RemoteException {
         /* set direction based on the target */
