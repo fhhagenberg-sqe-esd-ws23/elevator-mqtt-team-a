@@ -80,6 +80,12 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
     private boolean isOnTargetFloor(Elevator elevator) {
         return elevator.getTarget() == elevator.getFloor() && elevator.getSpeed() == 0 && elevator.getDoorStatus() == IElevator.ELEVATOR_DOORS_OPEN;
     }
+    
+    /**
+     * determines the next targets for the elevators
+     *
+     * @return void
+     */
 	
     public void setNextTargets() throws RemoteException {
         
@@ -97,6 +103,8 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
         }
     }
     
+    
+    /* private return class for the searchAndHandleStopsReturn */
     private class searchAndHandleStopsReturn {
     	
     	public int currentfloor;
@@ -110,6 +118,14 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
     }
     
 
+    /**
+     * get a new target for the current elevator
+     *
+     * @param elevator current elevator to handle the targets for
+     * @param upPressed current elevator to handle the targets for
+     * @return true if standing on the target floor, false otherwise
+     */
+    
     private void handleElevatorTargets(Elevator elevator, boolean[] upPressed, boolean[] downPressed) throws RemoteException {
       
     	if (isOnTargetFloor(elevator)) {
