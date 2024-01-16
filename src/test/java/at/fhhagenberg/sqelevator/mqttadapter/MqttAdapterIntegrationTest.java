@@ -1,4 +1,4 @@
-package at.fhhagenberg.sqelevator;
+package at.fhhagenberg.sqelevator.mqttadapter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
@@ -37,7 +37,8 @@ import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish;
 
 import org.junit.jupiter.api.Test;
 
-import at.fhhagenberg.sqelevator.mqttadapter.Main;
+import at.fhhagenberg.sqelevator.ElevatorProperties;
+import at.fhhagenberg.sqelevator.MqttTopicGenerator;
 import sqelevator.IElevator;
 
 @Testcontainers
@@ -46,7 +47,7 @@ public class MqttAdapterIntegrationTest {
 
     @Container
     HiveMQContainer container = new HiveMQContainer(DockerImageName.parse("hivemq/hivemq-ce:latest"));
-	
+
     private Mqtt3BlockingClient testClient;
     private ElevatorProperties properties;
     private Registry registry;
@@ -58,7 +59,7 @@ public class MqttAdapterIntegrationTest {
     private OutputStreamWriter inputWriter;
     private String[] args = new String[0];
     private Thread runThread;
-    
+
 	@BeforeEach
     void setUp() throws InterruptedException, ExecutionException, AlreadyBoundException, IOException {
         testClient = Mqtt3Client.builder().serverPort(container.getMqttPort()).buildBlocking();
@@ -102,7 +103,7 @@ public class MqttAdapterIntegrationTest {
 		try { UnicastRemoteObject.unexportObject(plc, true); } catch(Exception e) {} // unexport IElevator mock object
 		try { UnicastRemoteObject.unexportObject(registry, true); } catch(Exception e) {} // close registry
     }
-    
+
     private ElevatorProperties createPropertiesMock() {
     	ElevatorProperties props = mock(ElevatorProperties.class);
 		when(props.getRmiAddress()).thenReturn("localhost");
@@ -114,7 +115,7 @@ public class MqttAdapterIntegrationTest {
 		when(props.getExitLine()).thenReturn("exit");
 		return props;
     }
-    
+
     private IElevator createPlcMock() throws RemoteException {
     	IElevator obj = mock(IElevator.class);
 		when(obj.getElevatorNum()).thenReturn(2);
@@ -158,11 +159,11 @@ public class MqttAdapterIntegrationTest {
 		when(obj.getFloorButtonUp(2)).thenReturn(false);
 		return obj;
     }
-    
+
     private void waitUntilAssertsTrue(BooleanSupplier func) throws InterruptedException {
     	waitUntilAssertsTrue(func, 10, 500);
     }
-    
+
     private void waitUntilAssertsTrue(BooleanSupplier func, int tryTimes, int waitBetweenTriesMs) throws InterruptedException {    	
     	boolean result = false;
 		for(int i = 0; i < tryTimes; ++i) {

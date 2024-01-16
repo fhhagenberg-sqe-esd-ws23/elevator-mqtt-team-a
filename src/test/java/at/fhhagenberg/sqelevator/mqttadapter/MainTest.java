@@ -1,4 +1,4 @@
-package at.fhhagenberg.sqelevator;
+package at.fhhagenberg.sqelevator.mqttadapter;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -18,7 +18,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
 
-import at.fhhagenberg.sqelevator.mqttadapter.Main;
+import at.fhhagenberg.sqelevator.ElevatorProperties;
 import sqelevator.IElevator;
 
 class MainTest {

@@ -1,10 +1,16 @@
-package at.fhhagenberg.sqelevator;
+package at.fhhagenberg.sqelevator.mqttadapter;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
+
+import at.fhhagenberg.sqelevator.Building;
+import at.fhhagenberg.sqelevator.Elevator;
+import at.fhhagenberg.sqelevator.ElevatorsMqttClient;
+import at.fhhagenberg.sqelevator.ExitCommandThread;
+import at.fhhagenberg.sqelevator.Floor;
 
 /**
  * This class is the main class of the Elevators MQTT Adapter program.
