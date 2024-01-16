@@ -1,8 +1,12 @@
-package at.fhhagenberg.sqelevator;
+package at.fhhagenberg.sqelevator.mqttadapter;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.rmi.RemoteException;
+
+import at.fhhagenberg.sqelevator.Elevator;
+import at.fhhagenberg.sqelevator.ElevatorsMqttClient;
+import at.fhhagenberg.sqelevator.IMqttMessageListener;
 
 /**
  * Class acting as a bridge between an elevator and a MQTT client.

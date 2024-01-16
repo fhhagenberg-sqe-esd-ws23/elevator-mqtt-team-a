@@ -1,4 +1,4 @@
-package at.fhhagenberg.sqelevator;
+package at.fhhagenberg.sqelevator.mqttadapter;
 
 /**
  * Common interface for bridges between classes (e.g. Elevator, Floor) and a MQTT client used by the main ElevatorsMqttAdapter class.

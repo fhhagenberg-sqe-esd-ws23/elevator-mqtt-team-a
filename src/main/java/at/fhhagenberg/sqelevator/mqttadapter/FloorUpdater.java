@@ -1,7 +1,8 @@
-package at.fhhagenberg.sqelevator;
+package at.fhhagenberg.sqelevator.mqttadapter;
 
 import java.rmi.RemoteException;
 
+import at.fhhagenberg.sqelevator.Floor;
 import sqelevator.IElevator;
 
 /**
