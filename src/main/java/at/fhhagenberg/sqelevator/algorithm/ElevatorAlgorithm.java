@@ -4,11 +4,13 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.rmi.RemoteException;
 import java.util.Arrays;
-
-import org.w3c.dom.html.HTMLLIElement;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 import at.fhhagenberg.sqelevator.Building;
 import at.fhhagenberg.sqelevator.Elevator;
+import at.fhhagenberg.sqelevator.Floor;
 import sqelevator.IElevator;
 
 public class ElevatorAlgorithm implements PropertyChangeListener {
@@ -19,9 +21,32 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
     private final boolean[] mUp;
     private final boolean[] mUpTarget;
     private final boolean[] mDownTarget;
-    
+    private boolean initialStatusReceived = false;
+
+    private Dictionary<Object, Dictionary<String , Boolean>> mProps = new Hashtable<>();
+
+    private boolean checkInitialStatus() {
+    	Enumeration<Object> e = mProps.keys();
+
+    	while(e.hasMoreElements()) {
+    		Object o = e.nextElement();
+    		Dictionary<String, Boolean> d = mProps.get(o);
+    		Enumeration<String> e2 = d.keys();
+
+    		while(e2.hasMoreElements()) {
+    			String propName = e2.nextElement();
+        		if(!d.get(propName)) {
+        			return false;
+        		}
+        	}
+    	}
+
+    	return true;
+    }
+
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
+		mProps.get(evt.getSource()).put(evt.getPropertyName(), true);
 		
 		switch (evt.getPropertyName()) {
 		case Elevator.SERVICED_FLOORS_PROPERTY_NAME: break;
@@ -29,16 +54,21 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
 		case Elevator.COMMITTED_DIRECTION_PROPERTY_NAME: break;
 		default:
 			try {
-				this.setNextTargets();
+				if(checkInitialStatus()) {
+					if(!initialStatusReceived) {
+						initialStatusReceived = true;
+						System.out.println("Initial status received, starting algorithm");
+					}
+					this.setNextTargets();					
+				}
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				// RemoteException cannot happen here, ignore
+				return;
 			}
 		}
 	}
-	
-	public ElevatorAlgorithm(AlgorithmMqttAdapter mqttAdapter) {
-		
+
+	public ElevatorAlgorithm(AlgorithmMqttAdapter mqttAdapter) {		
 		mAdapter = mqttAdapter;
 		mBuilding = mqttAdapter.getBuilding();
         mUp = new boolean[mBuilding.getElevatorCount()];
@@ -47,30 +77,45 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
         Arrays.fill(mUpTarget, false);
         mDownTarget = new boolean[mBuilding.getFloorCount()];
         Arrays.fill(mDownTarget, false);
-		
+
 		for(int i = 0; i < mBuilding.getElevatorCount(); ++i) {
 			mBuilding.getElevators()[i].addPropertyChangeListener(this);
+
+			Dictionary<String , Boolean> d = new Hashtable<>();
+			d.put(Elevator.ACCELERATION_PROPERTY_NAME, false);
+			d.put(Elevator.CAPACITY_PROPERTY_NAME, false);
+			d.put(Elevator.DOOR_STATUS_PROPERTY_NAME, false);
+			d.put(Elevator.FLOOR_PROPERTY_NAME, false);
+			d.put(Elevator.POSITION_PROPERTY_NAME, false);
+			d.put(Elevator.SERVICED_FLOORS_PROPERTY_NAME, false);
+			d.put(Elevator.SPEED_PROPERTY_NAME, false);
+			d.put(Elevator.STOP_REQUESTS_PROPERTY_NAME, false);
+			d.put(Elevator.WEIGHT_PROPERTY_NAME, false);
+			mProps.put(mBuilding.getElevators()[i], d);
 		}
-		
+
 		for(int i = 0; i < mBuilding.getFloorCount(); ++i) {
 			mBuilding.getFloors()[i].addPropertyChangeListener(this);
+
+			Dictionary<String , Boolean> d = new Hashtable<>();
+			d.put(Floor.BUTTON_DOWN_PROPERTY_NAME, false);
+			d.put(Floor.BUTTON_UP_PROPERTY_NAME, false);
+			mProps.put(mBuilding.getFloors()[i], d);
 		}
 		
+		System.out.println("waiting for initial status ...");
 	}
-	
-	
-	public void Shutdown() {
-		
+
+	public void Shutdown() {		
 		for(int i = 0; i < mBuilding.getElevatorCount(); ++i) {
 			mBuilding.getElevators()[i].removePropertyChangeListener(this);
 		}
-		
+
 		for(int i = 0; i < mBuilding.getFloorCount(); ++i) {
 			mBuilding.getFloors()[i].removePropertyChangeListener(null);
 		}
 	}
-	
-	
+
     /**
      * determines if an elevator is standing on its target floor
      *
@@ -80,7 +125,7 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
     private boolean isOnTargetFloor(Elevator elevator) {
         return elevator.getTarget() == elevator.getFloor() && elevator.getSpeed() == 0 && elevator.getDoorStatus() == IElevator.ELEVATOR_DOORS_OPEN;
     }
-	
+
     /**
      * updates the targets of the elevators that are not already set
      * @throws RemoteException 

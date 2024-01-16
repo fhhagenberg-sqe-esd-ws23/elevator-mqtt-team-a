@@ -5,15 +5,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
-import java.lang.reflect.Method;
 
 import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
 import com.hivemq.client.mqtt.mqtt3.message.connect.connack.Mqtt3ConnAck;
 import com.hivemq.client.mqtt.mqtt3.message.connect.connack.Mqtt3ConnAckReturnCode;
-import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish;
 import com.hivemq.client.mqtt.mqtt3.message.subscribe.suback.Mqtt3SubAckReturnCode;
 
 /**
@@ -22,7 +19,7 @@ import com.hivemq.client.mqtt.mqtt3.message.subscribe.suback.Mqtt3SubAckReturnCo
  * IMqttMessageListener objects can be added to get notified of control messages.
  */
 public class ElevatorsMqttClient {
-	
+
 	private final Mqtt3AsyncClient client;
 	private final HashSet<IMqttMessageListener> listeners = new HashSet<>();
 	private final MqttTopicGenerator topics = new MqttTopicGenerator();
@@ -76,19 +73,18 @@ public class ElevatorsMqttClient {
 		if(isConnected()) {
 			return true;
 		}
-		
+
 		Mqtt3ConnAck result = client.connect().get();
 		Mqtt3ConnAckReturnCode code = result.getReturnCode();
 		connected = code == Mqtt3ConnAckReturnCode.SUCCESS;		
 		return connected;	
 	}
 	
-	
 	@FunctionalInterface
 	public interface MqttCallback {
 	    void processSetMethod(Object[] args, Object additionalParam);
 	}
-	
+
     public boolean subscribe_int(String topic, MqttCallback callback, Object... args) throws InterruptedException, ExecutionException {
         if (!isConnected()) {
             return false;
@@ -109,7 +105,7 @@ public class ElevatorsMqttClient {
 				return false;
 			}
 		}
-        
+
 		return true;
     }
 
@@ -125,10 +121,10 @@ public class ElevatorsMqttClient {
 		if(!isConnected()) {
 			return false;
 		}
-				
+
 		for(int i = 0; i < numberOfElevators; ++i) {
 			final int elevator = i;
-			
+
 			if (!subscribe_int(	topics.getSetDirectionTopic(elevator),
 								(args, intval)->{
 									setDirectionReceived((int)args[0],(int)intval);},
@@ -136,7 +132,7 @@ public class ElevatorsMqttClient {
 				unsubscribeAll();
 				return false;
 			}
-			
+
 			if (!subscribe_int(	topics.getSetTargetTopic(elevator),
 					(args, intval)->{
 						setTargetReceived((int)args[0],(int)intval);},
@@ -144,12 +140,10 @@ public class ElevatorsMqttClient {
 				unsubscribeAll();
 				return false;
 			}
-						
-			
+
 			for(int j = 0; j < numberOfFloors; ++j) {
 				final int floor = j;
-				
-				
+
 				if (!subscribe_int(	topics.getSetServicesFloorTopic(elevator,floor),
 						(args, intval)->{
 								setServicesFloorReceived((int)args[0], (int)args[1],(int)intval == 1);},
@@ -159,10 +153,10 @@ public class ElevatorsMqttClient {
 				}
 			}
 		}
-		
+
 		return true;
 	}	
-	
+
 	/**
 	 * Unsubscribe from all control messages.
 	 * @throws InterruptedException
@@ -173,7 +167,7 @@ public class ElevatorsMqttClient {
 		.topicFilter(MqttTopicGenerator.TOPIC_LEVEL_BUILDING)
         .send().get();
 	}
-	
+
 	private void setDirectionReceived(int elevator, int direction) {
 		for(IMqttMessageListener listener : listeners) {
 			listener.setCommittedDirection(elevator, direction);
@@ -185,13 +179,12 @@ public class ElevatorsMqttClient {
 			listener.setTarget(elevator, target);
 		}
 	}
-	
+
 	private void setServicesFloorReceived(int elevator, int floor, boolean service) {
 		for(IMqttMessageListener listener : listeners) {
 			listener.setServicesFloor(elevator, floor, service);
 		}
 	}
-	
 
 	/**
 	 * Publish a MQTT message.
@@ -201,14 +194,22 @@ public class ElevatorsMqttClient {
 	 */
 	public boolean publish(String topic, ByteBuffer payload, boolean retain) {
 		try {
-			client.publishWith()
-			.topic(topic)
-			.payload(payload.array())
-			.qos(MqttQos.EXACTLY_ONCE)
-			.retain(retain)
-			.send()
-			.get();
-		} catch (InterruptedException | ExecutionException e) {
+			Thread t = new Thread(() -> {
+				client.publishWith()
+				.topic(topic)
+				.payload(payload.array())
+				.qos(MqttQos.EXACTLY_ONCE)
+				.retain(retain)
+				.send()
+				.whenComplete((mqtt5Publish, throwable) -> {
+	                if (throwable != null) {
+	                    System.err.println("Publish failed!! Topic: " + topic + " Details: " + throwable.getMessage());
+	                }
+	            });       
+			});
+			t.start();
+			t.join();
+		} catch (InterruptedException e) {
 			return false;
 		}
 		return true;
@@ -223,31 +224,21 @@ public class ElevatorsMqttClient {
 		publish(topic, payload, true);
 	}
 
-	/**
-	 * Publish a MQTT message which is not a retained message.
-	 * @param topic the topic to publish the message to
-	 * @param payload the payload to publish the message with
-	 */
-	/*
-	 * public void publishNotRetained(String topic, ByteBuffer payload) {
-	 * publish(topic, payload, false); }
-	 */
-	
 	public void publishNumberOfElevators(int numberOfElevators) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(numberOfElevators);		
 		publishRetained(topics.getNumElevatorsTopic(), payload);
 	}
-	
+
 	public void publishNumberOfFloors(int numberOfFloors) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(numberOfFloors);
 		publishRetained(topics.getNumFloorsTopic(), payload);
 	}
-	
+
 	public void publishFloorHeight(int floorHeight) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(floorHeight);
 		publishRetained(topics.getFloorHeightTopic(), payload);
 	}
-	
+
 	public void publishConnected(boolean connected) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(connected ? 1 : 0);
 		publishRetained(topics.getConnectedTopic(), payload);
@@ -257,68 +248,67 @@ public class ElevatorsMqttClient {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(direction);
 		publishRetained(topics.getDirectionTopic(elevator), payload);
 	}
-	
+
 	public void publishAcceleration(int elevator, int acceleration) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(acceleration);
 		publishRetained(topics.getAccelerationTopic(elevator), payload);
 	}
-	
+
 	public void publishButtonPressed(int elevator, int floor, boolean button) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(button ? 1 : 0);
 		publishRetained(topics.getButtonTopic(elevator, floor), payload);
 	}
-	
+
 	public void publishCapacity(int elevator, int capacity) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(capacity);
 		publishRetained(topics.getCapacityTopic(elevator), payload);
 	}
-	
+
 	public void publishDoors(int elevator, int doors) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(doors);
 		publishRetained(topics.getDoorsTopic(elevator), payload);
 	}
-	
+
 	public void publishFloor(int elevator, int floor) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(floor);
 		publishRetained(topics.getFloorTopic(elevator), payload);
 	}
-	
+
 	public void publishPosition(int elevator, int position) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(position);
 		publishRetained(topics.getPositionTopic(elevator), payload);
 	}
-	
+
 	public void publishSpeed(int elevator, int speed) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(speed);
 		publishRetained(topics.getSpeedTopic(elevator), payload);
 	}
-	
+
 	public void publishWeight(int elevator, int weight) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(weight);
 		publishRetained(topics.getWeightTopic(elevator), payload);
 	}
-	
+
 	public void publishServicesFloor(int elevator, int floor, boolean service) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(service ? 1 : 0);
 		publishRetained(topics.getServicesFloorTopic(elevator, floor), payload);
 	}
-		
+	
 	public void publishTarget(int elevator, int target) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(target);
 		publishRetained(topics.getTargetTopic(elevator), payload);
 	}
-	
+
 	public void publishButtonUp(int floor, boolean pressed) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(pressed ? 1 : 0);
 		publishRetained(topics.getButtonUpTopic(floor), payload);
 	}
-		
+
 	public void publishButtonDown(int floor, boolean pressed) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(pressed ? 1 : 0);
 		publishRetained(topics.getButtonDownTopic(floor), payload);
 	}
-	
-	
+
 	public void publishDirectionReceived(int elevator, int direction) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(direction);
 		publishRetained(topics.getSetDirectionTopic(elevator), payload);
@@ -328,15 +318,11 @@ public class ElevatorsMqttClient {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(target);
 		publishRetained(topics.getSetTargetTopic(elevator), payload);
 	}
-	
+
 	public void publishServicesFloorReceived(int elevator, int floor, boolean service) {
 		ByteBuffer payload = ByteBuffer.allocate(Integer.BYTES).putInt(service ? 1 : 0);
 		publishRetained(topics.getSetServicesFloorTopic(elevator,floor), payload);
 	}
-	
-	
-	
-	
 
 	/**
 	 * Unsubscribe from all control messages and disconnect the client from the broker.
