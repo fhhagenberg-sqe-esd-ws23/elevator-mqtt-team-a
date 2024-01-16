@@ -15,7 +15,7 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
 
 	private Building mBuilding;
 	private AlgorithmMqttAdapter mAdapter;
-    //direction in which the elevator will currently try to go
+    /* direction in which the elevator will currently try to go */
     private final boolean[] mUp;
     private final boolean[] mUpTarget;
     private final boolean[] mDownTarget;
@@ -81,12 +81,8 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
         return elevator.getTarget() == elevator.getFloor() && elevator.getSpeed() == 0 && elevator.getDoorStatus() == IElevator.ELEVATOR_DOORS_OPEN;
     }
 	
-    /**
-     * updates the targets of the elevators that are not already set
-     * @throws RemoteException 
-     */
     public void setNextTargets() throws RemoteException {
-
+        
     	/* collect all up/down button presses */
         var upPressed = new boolean[mBuilding.getFloorCount()];
         var downPressed = new boolean[mBuilding.getFloorCount()];
@@ -94,106 +90,140 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
             downPressed[floor.getNumber()] = floor.isButtonDown();
             upPressed[floor.getNumber()] = floor.isButtonUp();
         }
-
+    	
         /* handle the targets one after the other, keep them until the elevator arrives */
-        for (var elevator : mBuilding.getElevators()) {
-            var nr = elevator.getNumber();
+    	for (var elevator : mBuilding.getElevators()) {
+            handleElevatorTargets(elevator, upPressed, downPressed);
+        }
+    }
+    
+    private class searchAndHandleStopsReturn {
+    	
+    	public int currentfloor;
+    	public boolean breakNeeded;
+    	
+    	public searchAndHandleStopsReturn(int currentfloor, boolean breakNeeded)
+    	{
+    		this.currentfloor = currentfloor;
+    		this.breakNeeded = breakNeeded;
+    	}
+    }
+    
 
-            /* collection of all stops, prevents stopping on current floor */
+    private void handleElevatorTargets(Elevator elevator, boolean[] upPressed, boolean[] downPressed) throws RemoteException {
+      
+    	if (isOnTargetFloor(elevator)) {
+    		
+    		int currentFloor = elevator.getFloor();
+    		
+    		/* collection of all stops, prevents stopping on current floor */
             var stops = new boolean[mBuilding.getFloorCount()];
             for (int i = 0; i < elevator.getNumberOfFloors(); ++i) {
                 stops[i] = elevator.getStopRequest(i);
             }
-
-            if (isOnTargetFloor(elevator)) {
-                var currentFloor = elevator.getFloor();
-
-                /* check if this floor was blocked as upwards/downwards target by current elevator */
-                if (mUp[nr] && mUpTarget[currentFloor]) {
-                    mUpTarget[currentFloor] = false;
-                }
-                if (!mUp[nr] && mDownTarget[currentFloor]) {
-                    mDownTarget[currentFloor] = false;
-                }
-
-                /* stopping on current floor not necessary */
-                stops[currentFloor] = false;
-                downPressed[currentFloor] = false;
-                upPressed[currentFloor] = false;
-
-               /* if stops can't be found on the way down, loop again and search upwards */
-                var loop = 0;
-                while (loop < 2) {
-                    loop++;
-
-                    /* if the elevator is searching for stops upwards it starts the search one
-                     *  floor above the current, until the last floor is reached */
-                    if (mUp[nr]) {
-
-                        int i = currentFloor + 1;
-                        for (; i < elevator.getNumberOfFloors(); ++i) {
-
-                            /* if a floor is a requested stop by an inside or outside button it will get serviced
-                               when requested outside, make sure that it is not already serviced by another elevator */
-                            if (((upPressed[i] && !mUpTarget[i]) || stops[i]) &&
-                                    elevator.getServicesFloor(i)) {
-                            	mAdapter.setTarget(elevator.getNumber(), i);
-                                if (upPressed[i]) {
-
-                                    /* if it was a press from an outside button, this floor is now serviced by
-                                       this elevator and other elevators will no longer be able to see the request */
-                                    mUpTarget[i] = true;
-                                }
-                                break;
-                            }
-                        }
-
-                        /* if no stop was found upwards, we search downwards
-                          starting with the upmost floor */
-                        if (i == elevator.getNumberOfFloors()) {
-                            mUp[nr] = false;
-                            if (currentFloor != elevator.getNumberOfFloors() - 1) {
-                                currentFloor = i;
-                            }
-                        }
-                        else {
-                            break;
-                        }
-                    }
-                    /* repeat the same process as for searching for stops upwards, just on the way down */
-                    if (!mUp[nr]) {
-
-                        int i = currentFloor - 1;
-                        for (; i >= 0; --i) {
-                            if (((downPressed[i] && !mDownTarget[i]) || stops[i]) &&
-                                    elevator.getServicesFloor(i)) {
-                                mAdapter.setTarget(elevator.getNumber(), i);
-                                if (downPressed[i]) {
-                                    mDownTarget[i] = true;
-                                }
-                                break;
-                            }
-                        }
-                        if (i == -1) {
-                            mUp[nr] = true;
-                            if (currentFloor != 0) {
-                                currentFloor = i;
-                            }
-                        } else {
-                            break;
-                        }
-                    }
-                }
-                
-                /* set direction based on the target */
-                if (elevator.getTarget() == elevator.getFloor()) {
-                    mAdapter.setCommittedDirection(elevator.getNumber(), IElevator.ELEVATOR_DIRECTION_UNCOMMITTED);
-                } else if (elevator.getTarget() < elevator.getFloor()) {
-                    mAdapter.setCommittedDirection(elevator.getNumber(), IElevator.ELEVATOR_DIRECTION_DOWN);
-                } else if (elevator.getTarget() > elevator.getFloor()) {
-                    mAdapter.setCommittedDirection(elevator.getNumber(), IElevator.ELEVATOR_DIRECTION_UP);
-                }
+            
+            /* check if this floor was blocked as upwards/downwards target by current elevator */
+            if (mUp[elevator.getNumber()] && mUpTarget[currentFloor]) {
+                mUpTarget[currentFloor] = false;
             }
+            if (!mUp[elevator.getNumber()] && mDownTarget[currentFloor]) {
+                mDownTarget[currentFloor] = false;
+            }
+            
+            /* stopping on current floor not necessary */
+            stops[currentFloor] = false;
+            downPressed[currentFloor] = false;
+            upPressed[currentFloor] = false;
+
+            
+            /* if stops can't be found on the way down, loop again and search upwards */
+            var loop = 0;
+            while (loop < 2) {
+            	loop++;
+            	
+	            /* Handle stops and requests upwards */
+	            if (mUp[elevator.getNumber()]) {
+	            	searchAndHandleStopsReturn ret = searchAndHandleStops(elevator, currentFloor, upPressed, mUpTarget, stops, true);
+	            
+	            	 /* if no stop was found upwards, we search downwards
+                    starting with the upmost floor */
+	            	currentFloor = ret.currentfloor;
+	            	if(ret.breakNeeded) {
+	            		break;
+	            	}
+	            }
+	            	
+	            /* If stops were not found upwards, search downwards */
+	            if (!mUp[elevator.getNumber()]) {
+	            	searchAndHandleStopsReturn ret = searchAndHandleStops(elevator, currentFloor, downPressed, mDownTarget, stops, false);
+	            	
+	            	currentFloor = ret.currentfloor;
+	            	if(ret.breakNeeded) {
+	            		break;
+	            	}
+	            }
+            }
+            
+            updateDirectionAndClearTargets(elevator);
+        }
+    }
+
+
+    private searchAndHandleStopsReturn searchAndHandleStops(Elevator elevator, int currentFloor, boolean[] pressedArray, boolean[] targetArray, boolean[] stops, boolean isUpwards) throws RemoteException {
+        int floorIterator = isUpwards ? currentFloor + 1 : currentFloor - 1;
+        boolean breakRequest = false;
+        
+        while ((isUpwards && floorIterator < elevator.getNumberOfFloors()) || (!isUpwards && floorIterator >= 0)) {
+            if (handleFloorStopRequest(elevator, floorIterator, pressedArray, targetArray, stops)) {
+                break;
+            }
+
+            floorIterator += isUpwards ? 1 : -1;
+        }
+        
+        if(isUpwards && floorIterator == elevator.getNumberOfFloors())
+        {
+            mUp[elevator.getNumber()] = false;
+            if (currentFloor != elevator.getNumberOfFloors() - 1) {
+                currentFloor = floorIterator;
+            }
+            
+        }
+        else if (!isUpwards &&  floorIterator == -1)
+        {
+            mUp[elevator.getNumber()] = true;
+            if (currentFloor != 0) {
+                currentFloor = floorIterator;
+            }
+        }
+        else
+        {
+        	breakRequest = true;
+        }
+        
+        return new searchAndHandleStopsReturn(currentFloor,breakRequest);
+    }
+
+    private boolean handleFloorStopRequest(Elevator elevator, int floor, boolean[] pressedArray, boolean[] targetArray, boolean[] stops) throws RemoteException {
+    	if (((pressedArray[floor] && !targetArray[floor]) || stops[floor]) &&
+                elevator.getServicesFloor(floor)) {
+            mAdapter.setTarget(elevator.getNumber(), floor);
+            if (pressedArray[floor]) {
+                targetArray[floor] = true;
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    private void updateDirectionAndClearTargets(Elevator elevator) throws RemoteException {
+        /* set direction based on the target */
+        if (elevator.getTarget() == elevator.getFloor()) {
+            mAdapter.setCommittedDirection(elevator.getNumber(), IElevator.ELEVATOR_DIRECTION_UNCOMMITTED);
+        } else if (elevator.getTarget() < elevator.getFloor()) {
+            mAdapter.setCommittedDirection(elevator.getNumber(), IElevator.ELEVATOR_DIRECTION_DOWN);
+        } else if (elevator.getTarget() > elevator.getFloor()) {
+            mAdapter.setCommittedDirection(elevator.getNumber(), IElevator.ELEVATOR_DIRECTION_UP);
         }
     }
 }
