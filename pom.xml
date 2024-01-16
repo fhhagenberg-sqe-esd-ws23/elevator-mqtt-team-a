@@ -98,7 +98,7 @@
 			       		<param>**.*ElevatorPlcMock</param>
 			       		<param>**.*ElevatorProperties</param>
 			       		<param>**.*AlgorithmMqttAdapter</param>>
-			       		<param>**.*AlgorithmMqttAdapterTest</param>>
+			       		<param>**.*MqttAdapterIntegrationTest</param>
 			       </excludes>
                 </configuration>
             </plugin>
@@ -140,7 +140,6 @@
 						<param>**.*ElevatorPlcMock</param>
 						<param>**.*ElevatorProperties</param>
 						<param>**.*Main</param>
-						<param>**.*MqttAdapterIntegration</param>
 						<param>**.*AlgorithmMqttAdapter</param>
 					</excludedClasses>
 					<excludedTestClasses>
