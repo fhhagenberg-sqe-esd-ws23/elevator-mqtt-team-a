@@ -18,6 +18,7 @@ public class Floor {
 	private final int number;
 	private boolean buttonDown;
 	private boolean buttonUp;
+	private boolean alwaysCallPropertyChange = false;
 
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -90,9 +91,12 @@ public class Floor {
 	 * @param buttonDown boolean to indicate if button is active (true) or not (false)
 	 */
 	public void setButtonDown(boolean buttonDown) {
-		if(this.buttonDown != buttonDown) {
+		if(alwaysCallPropertyChange || this.buttonDown != buttonDown) {
 			boolean oldValue = this.buttonDown;
-			this.buttonDown = buttonDown;		
+			this.buttonDown = buttonDown;
+			if(alwaysCallPropertyChange) {
+				oldValue = !buttonDown;
+			}
 			this.pcs.firePropertyChange(BUTTON_DOWN_PROPERTY_NAME, oldValue, buttonDown);
 		}
 	}
@@ -110,11 +114,18 @@ public class Floor {
 	 * @param buttonUp boolean to indicate if button is active (true) or not (false)
 	 */
 	public void setButtonUp(boolean buttonUp) {
-		if(this.buttonUp != buttonUp) {
+		if(alwaysCallPropertyChange || this.buttonUp != buttonUp) {
 			boolean oldValue = this.buttonUp;
 			this.buttonUp = buttonUp;
+			if(alwaysCallPropertyChange) {
+				oldValue = !buttonUp;
+			}
 			this.pcs.firePropertyChange(BUTTON_UP_PROPERTY_NAME, oldValue, buttonUp);
 		}
+	}
+	
+	public void setAlwaysSetPropertyChange(boolean set) {
+		alwaysCallPropertyChange = set;
 	}
 
 }

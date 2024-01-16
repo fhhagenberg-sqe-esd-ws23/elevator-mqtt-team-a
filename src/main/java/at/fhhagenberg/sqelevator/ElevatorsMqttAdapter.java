@@ -31,12 +31,12 @@ public class ElevatorsMqttAdapter {
 		Floor[] floors = building.getFloors();
 		updaters = new IUpdater[elevators.length + floors.length];
 		bridges = new IMqttBridge[elevators.length + floors.length];
-		
+
 		for(int i = 0; i < elevators.length; ++i) {
 			updaters[i] = new ElevatorUpdater(elevators[i]);
 			bridges[i] = new ElevatorMqttBridge(elevators[i], mqtt);
 		}
-		
+
 		for(int i = 0; i < floors.length; ++i) {
 			updaters[elevators.length + i] = new FloorUpdater(floors[i]);
 			bridges[elevators.length + i] = new FloorMqttBridge(floors[i], mqtt);
@@ -60,20 +60,20 @@ public class ElevatorsMqttAdapter {
 	 * @param exitThread instance of ExitCommandThread which provides the signal to exit the program
 	 * @param output output stream to write information to
 	 */
-	public void run(ExitCommandThread exitThread, OutputStream output) throws InterruptedException, IOException, ExecutionException {
-		
+	public void run(ExitCommandThread exitThread, OutputStream output) throws InterruptedException, IOException, ExecutionException {		
 		OutputStreamWriter writer = new OutputStreamWriter(output);
-		if(!mqtt.subscribeToControlMessages(building.getElevatorCount(), building.getFloorCount()))
-		{
-			writer.write("could not subscribe!\n");
+		
+		if(!mqtt.subscribeToControlMessages(building.getElevatorCount(), building.getFloorCount())) {
+			writer.write("Could not subscribe to control messages!\n");
+			return;
 		}
+
 		mqtt.publishNumberOfElevators(building.getElevatorCount());
 		mqtt.publishNumberOfFloors(building.getFloorCount());
 		mqtt.publishFloorHeight(building.floorHeight());
 
 		stopMqttBridges();
 		startMqttBridges();
-		
 		
 		writer.write("Started Elevators Mqtt Adapter.\n");
 

@@ -12,7 +12,7 @@ import java.rmi.RemoteException;
  * If the elevator number of the incoming control message matches the associated elevator, the associated elevator is updated accordingly.
  */
 public class ElevatorMqttBridge implements IMqttBridge, PropertyChangeListener, IMqttMessageListener {
-	
+
 	private final Elevator elevator;
 	private final ElevatorsMqttClient mqtt;
 	private boolean started = false;
@@ -36,7 +36,7 @@ public class ElevatorMqttBridge implements IMqttBridge, PropertyChangeListener, 
 		if(evt.getSource() != elevator) {
 			return;
 		}
-		
+
 		switch(evt.getPropertyName()) {
 		case Elevator.COMMITTED_DIRECTION_PROPERTY_NAME:
 			publishCommittedDirection();
@@ -138,7 +138,7 @@ public class ElevatorMqttBridge implements IMqttBridge, PropertyChangeListener, 
 		if(started) {
 			return;
 		}
-		
+
 		started = true;
 		elevator.addPropertyChangeListener(this);
 		mqtt.addListener(this);
@@ -163,21 +163,21 @@ public class ElevatorMqttBridge implements IMqttBridge, PropertyChangeListener, 
 		elevator.removePropertyChangeListener(this);
 		mqtt.removeListener(this);
 	}
-	
+
 	private void publishCommittedDirection() {
 		mqtt.publishDirection(elevator.getNumber(), elevator.getCommittedDirection());		
 	}
-	
+
 	private void publishAcceleration() {
 		mqtt.publishAcceleration(elevator.getNumber(), elevator.getAcceleration());		
 	}
-	
+
 	private void publishButtonsPressed() {
 		for(int i = 0; i < elevator.getNumberOfFloors(); i++) {
 			mqtt.publishButtonPressed(elevator.getNumber(), i, elevator.getStopRequest(i));
 		}
 	}
-	
+
 	private void publishCapacity() {
 		mqtt.publishCapacity(elevator.getNumber(), elevator.getCapacity());		
 	}
