@@ -97,7 +97,6 @@
 			        <excludes>
 			       		<param>**.*ElevatorPlcMock</param>
 			       		<param>**.*ElevatorProperties</param>
-			       		<param>**.*AlgorithmMqttAdapter</param>>
 			       		<param>**.*MqttAdapterIntegrationTest</param>
 			       </excludes>
                 </configuration>
@@ -110,8 +109,6 @@
 			        <excludes>
 			       		<param>**.*ElevatorPlcMock</param>
 			       		<param>**.*ElevatorProperties</param>
-			       		<param>**.*AlgorithmMqttAdapter</param>>
-			       		<param>**.*AlgorithmMqttAdapterTest</param>>
 			       </excludes>
 			    </configuration>
 				<executions>
