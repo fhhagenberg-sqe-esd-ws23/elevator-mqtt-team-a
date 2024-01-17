@@ -53,6 +53,7 @@ jobs:
         files: |
           elevator-algorithm/target/mqtt-elevator-team-a-algorithm-0.0.1-SNAPSHOT-jar-with-dependencies.jar
           elevator-mqttadapter/target/mqtt-elevator-team-a-mqttadapter-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+          elevator.properties
     - name: Upload artifacts to job
       uses: actions/upload-artifact@v4
       with:
@@ -60,6 +61,7 @@ jobs:
         path: |
           elevator-algorithm/target/mqtt-elevator-team-a-algorithm-0.0.1-SNAPSHOT-jar-with-dependencies.jar
           elevator-mqttadapter/target/mqtt-elevator-team-a-mqttadapter-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+          elevator.properties
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     # - name: Update dependency graph
