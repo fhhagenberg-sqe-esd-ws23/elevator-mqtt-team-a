@@ -3,7 +3,7 @@ SQElevator MQTT Group A
 
 ## Requirements
 - Java Runtime (version 17 or later)
-- MQTT broker (a local one works best)
+- MQTT broker (a local one works best) 
 
 ## How to run the system
 1. Download the 4 artifacts from the latest release and put them in the same directory
