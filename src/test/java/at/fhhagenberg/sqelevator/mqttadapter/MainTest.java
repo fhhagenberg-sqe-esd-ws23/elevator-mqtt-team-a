@@ -147,6 +147,51 @@ class MainTest {
 	}
 	
 	@Test
+	void testStartWithPlcMockAndRunSomeTime() throws IOException, InterruptedException {
+		ElevatorProperties props = mock(ElevatorProperties.class);
+		when(props.getRmiAddress()).thenReturn("localhost");
+		when(props.getRmiPort()).thenReturn(65535);
+		when(props.getRmiName()).thenReturn("unused");
+		when(props.getMqttAddress()).thenReturn("broker.hivemq.com");
+		when(props.getMqttPort()).thenReturn(1883);
+		when(props.getRmiPollingInterval()).thenReturn(250);
+		when(props.getExitLine()).thenReturn("exit");
+		Main main = new Main();
+		PipedInputStream input = new PipedInputStream();
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		PipedOutputStream out = new PipedOutputStream(input);
+		String[] args = new String[1];
+		args[0] = "rmimock";
+		
+		try (OutputStreamWriter inWriter = new OutputStreamWriter(out)) {
+			
+			Thread t1 = new Thread(new Runnable() {
+			    @Override
+			    public void run() {
+					try {
+						main.run(args, props, input, output);
+					} catch (InterruptedException | IOException | ExecutionException e) {
+						throw new IllegalArgumentException("exception");
+					}
+			    }
+			});  
+			t1.start();
+			
+			// Let the mqtt adapter run some time
+			Thread.sleep(2500);
+			
+			// Immediately exit
+			inWriter.write("exit\n");
+			inWriter.flush();
+			
+			t1.join();
+		}
+		
+		String outputString = output.toString();
+		assertTrue(outputString.contains("Using RMI API Mock."));
+	}
+	
+	@Test
 	void testStartWithPlcMockWrongArgumentNumber() throws IOException, InterruptedException {
 		ElevatorProperties props = mock(ElevatorProperties.class);
 		when(props.getRmiAddress()).thenReturn("localhost");
@@ -234,7 +279,7 @@ class MainTest {
 	void testConnectionLoss() throws IOException, InterruptedException, AlreadyBoundException, NotBoundException {
 		ElevatorProperties props = mock(ElevatorProperties.class);
 		when(props.getRmiAddress()).thenReturn("localhost");
-		when(props.getRmiPort()).thenReturn(65535);
+		when(props.getRmiPort()).thenReturn(65521);
 		when(props.getRmiName()).thenReturn("IElevator");
 		when(props.getMqttAddress()).thenReturn("broker.hivemq.com");
 		when(props.getMqttPort()).thenReturn(1883);
@@ -314,7 +359,7 @@ class MainTest {
 	void testReconnect() throws IOException, InterruptedException, AlreadyBoundException, NotBoundException {
 		ElevatorProperties props = mock(ElevatorProperties.class);
 		when(props.getRmiAddress()).thenReturn("localhost");
-		when(props.getRmiPort()).thenReturn(65535);
+		when(props.getRmiPort()).thenReturn(65520);
 		when(props.getRmiName()).thenReturn("IElevator");
 		when(props.getMqttAddress()).thenReturn("broker.hivemq.com");
 		when(props.getMqttPort()).thenReturn(1883);
