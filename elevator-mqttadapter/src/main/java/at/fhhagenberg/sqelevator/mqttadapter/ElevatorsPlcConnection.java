@@ -97,7 +97,6 @@ public class ElevatorsPlcConnection implements IElevator {
 			writer.write(e.getMessage());
 			writer.flush();
 		} catch (IOException e1) {
-			return;
 		}
 	}
 

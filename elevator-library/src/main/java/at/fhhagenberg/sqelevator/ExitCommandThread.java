@@ -37,6 +37,7 @@ public class ExitCommandThread extends Thread {
 	/**
 	 * Thread run method. Do not call!
 	 */
+	@Override
 	public void run() {
 		try (Scanner in = new Scanner(input)) {			
 			while(true) {

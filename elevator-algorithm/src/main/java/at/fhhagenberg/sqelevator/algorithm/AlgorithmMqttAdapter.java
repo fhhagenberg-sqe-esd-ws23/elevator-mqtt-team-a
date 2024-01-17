@@ -10,8 +10,8 @@ import sqelevator.IElevator;
 
 public class AlgorithmMqttAdapter implements IElevator {
 
-	private final static String INVALID_ELEVATOR = "Invalid elevator number!";
-	private final static String INVALID_FLOOR = "Invalid floor!";
+	private static final  String INVALID_ELEVATOR = "Invalid elevator number!";
+	private static final  String INVALID_FLOOR = "Invalid floor!";
 
 	private final int numElevators;
 	private final int numFloors;
@@ -154,7 +154,7 @@ public class AlgorithmMqttAdapter implements IElevator {
 		return true;
 	}
 
-	public AlgorithmMqttAdapter(ElevatorsMqttClient client, int numElevators, int numFloors, int floorHeight) throws RemoteException, InterruptedException, ExecutionException {
+	public AlgorithmMqttAdapter(ElevatorsMqttClient client, int numElevators, int numFloors, int floorHeight) throws RemoteException {
 		this.numElevators = numElevators;
 		this.numFloors = numFloors;
 		this.floorHeight = floorHeight;

@@ -15,7 +15,7 @@ import at.fhhagenberg.sqelevator.Elevator;
 import at.fhhagenberg.sqelevator.ElevatorsMqttClient;
 
 @ExtendWith(MockitoExtension.class)
-public class ElevatorMqttBridgeTest {
+class ElevatorMqttBridgeTest {
 	private ElevatorsMqttClient mqtt;
 	private Elevator elevator;
 	private ElevatorMqttBridge bridge;

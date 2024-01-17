@@ -84,7 +84,6 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
 				}
 			} catch (RemoteException e) {
 				// RemoteException cannot happen here, ignore
-				return;
 			}
 		}
 	}
@@ -180,8 +179,18 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
     /* private return class for the searchAndHandleStopsReturn */
     private class searchAndHandleStopsReturn {
     	
-    	public int currentfloor;
-    	public boolean breakNeeded;
+    	private int currentfloor;
+    	private boolean breakNeeded;
+    	
+    	public int getCurrentFloor()
+    	{
+    		return this.currentfloor;
+    	}
+    	
+    	public boolean getBreakNeeded()
+    	{
+    		return this.breakNeeded;
+    	}
     	
     	public searchAndHandleStopsReturn(int currentfloor, boolean breakNeeded)
     	{
@@ -237,8 +246,8 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
 	            
 	            	 /* if no stop was found upwards, we search downwards
                     starting with the upmost floor */
-	            	currentFloor = ret.currentfloor;
-	            	if(ret.breakNeeded) {
+	            	currentFloor = ret.getCurrentFloor();
+	            	if(ret.getBreakNeeded()) {
 	            		break;
 	            	}
 	            }
@@ -247,8 +256,8 @@ public class ElevatorAlgorithm implements PropertyChangeListener {
 	            if (!mUp[elevator.getNumber()]) {
 	            	searchAndHandleStopsReturn ret = searchAndHandleStops(elevator, currentFloor, downPressed, mDownTarget, stops, false);
 	            	
-	            	currentFloor = ret.currentfloor;
-	            	if(ret.breakNeeded) {
+	            	currentFloor = ret.getCurrentFloor();
+	            	if(ret.getBreakNeeded()) {
 	            		break;
 	            	}
 	            }

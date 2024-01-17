@@ -126,16 +126,14 @@ public class ElevatorsMqttClient {
 			final int elevator = i;
 
 			if (!subscribe_int(	topics.getSetDirectionTopic(elevator),
-								(args, intval)->{
-									setDirectionReceived((int)args[0],(int)intval);},
+								(args, intval)->setDirectionReceived((int)args[0],(int)intval),
 								elevator)) {
 				unsubscribeAll();
 				return false;
 			}
 
 			if (!subscribe_int(	topics.getSetTargetTopic(elevator),
-					(args, intval)->{
-						setTargetReceived((int)args[0],(int)intval);},
+					(args, intval)->setTargetReceived((int)args[0],(int)intval),
 					elevator)) {
 				unsubscribeAll();
 				return false;
@@ -145,8 +143,7 @@ public class ElevatorsMqttClient {
 				final int floor = j;
 
 				if (!subscribe_int(	topics.getSetServicesFloorTopic(elevator,floor),
-						(args, intval)->{
-								setServicesFloorReceived((int)args[0], (int)args[1],(int)intval == 1);},
+						(args, intval)->setServicesFloorReceived((int)args[0], (int)args[1],(int)intval == 1),
 						elevator,floor)) {
 					unsubscribeAll();
 					return false;
@@ -194,7 +191,7 @@ public class ElevatorsMqttClient {
 	 */
 	public boolean publish(String topic, ByteBuffer payload, boolean retain) {
 		try {
-			Thread t = new Thread(() -> {
+			Thread t = new Thread(() ->
 				client.publishWith()
 				.topic(topic)
 				.payload(payload.array())
@@ -205,8 +202,8 @@ public class ElevatorsMqttClient {
 	                if (throwable != null) {
 	                    System.err.println("Publish failed!! Topic: " + topic + " Details: " + throwable.getMessage());
 	                }
-	            });       
-			});
+	            })       
+			);
 			t.start();
 			t.join();
 		} catch (InterruptedException e) {
