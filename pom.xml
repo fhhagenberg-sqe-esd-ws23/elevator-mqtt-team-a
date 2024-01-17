@@ -4,6 +4,11 @@
   <artifactId>mqtt-elevator-team-a</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
+  
+  <properties>
+	<sonar.organization>fhhagenberg-sqe-esd-ws23</sonar.organization>
+	<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+  </properties>
 
   <modules>
 	  <module>elevator-library</module>
