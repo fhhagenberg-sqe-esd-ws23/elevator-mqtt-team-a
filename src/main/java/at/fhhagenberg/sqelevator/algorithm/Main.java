@@ -2,6 +2,7 @@ package at.fhhagenberg.sqelevator.algorithm;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.util.concurrent.ExecutionException;
@@ -24,7 +25,7 @@ public class Main {
 		main.run(args, props, System.in, System.out);
 	}
 
-	private void run(String[] args, ElevatorProperties props, InputStream in, PrintStream out) throws IOException, InterruptedException, ExecutionException {
+	public void run(String[] args, ElevatorProperties props, InputStream in, OutputStream out) throws IOException, InterruptedException, ExecutionException {
 		ElevatorsMqttClient mqtt = new ElevatorsMqttClient(props.getMqttAddress(), props.getMqttPort());
 
 		ExitCommandThread exitThread = new ExitCommandThread(in, props.getExitLine());
