@@ -46,11 +46,18 @@ jobs:
           elevator-algorithm/target/surefire-reports/*.xml
           elevator-library/target/surefire-reports/*.xml
           elevator-mqttadapter/target/surefire-reports/*.xml
-    - name: Release
+    - name: Upload artifacts to Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
+          elevator-algorithm\target\mqtt-elevator-team-a-algorithm-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+          elevator-mqttadapter\target\mqtt-elevator-team-a-mqttadapter-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+    - name: Upload artifacts to job
+      uses: actions/upload-artifact@v4
+      with:
+        name: my-artifact
+        path: |
           elevator-algorithm\target\mqtt-elevator-team-a-algorithm-0.0.1-SNAPSHOT-jar-with-dependencies.jar
           elevator-mqttadapter\target\mqtt-elevator-team-a-mqttadapter-0.0.1-SNAPSHOT-jar-with-dependencies.jar
 
