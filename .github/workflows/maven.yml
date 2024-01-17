@@ -43,7 +43,9 @@ jobs:
       if: always()
       with:
         files: |
-          target/surefire-reports/*.xml
+          elevator-algorithm/target/surefire-reports/*.xml |
+          elevator-library/target/surefire-reports/*.xml |
+          elevator-mqttadapter/target/surefire-reports/*.xml
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     # - name: Update dependency graph
