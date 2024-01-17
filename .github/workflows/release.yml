@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Create release build with artifacts
+name: Create release build and append artifacts to release
 
 on: release
 
@@ -32,7 +32,25 @@ jobs:
     - name: Build with Maven
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-      run: mvn -B package --file pom.xml -DskipTests -Dmaven.test.skip=true
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: mvn -B package --file pom.xml org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=fhhagenberg-sqe-esd-ws23_elevator-mqtt-team-a
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: |
+          elevator-algorithm/target/surefire-reports/*.xml
+          elevator-library/target/surefire-reports/*.xml
+          elevator-mqttadapter/target/surefire-reports/*.xml
+    - name: Upload artifacts to job
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-output
+        path: |
+          elevator-algorithm/target/mqtt-elevator-team-a-algorithm-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+          elevator-mqttadapter/target/mqtt-elevator-team-a-mqttadapter-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+          elevator.properties
+          start-system.bat
     - name: Upload artifacts to Release
       uses: softprops/action-gh-release@v1
       with:
