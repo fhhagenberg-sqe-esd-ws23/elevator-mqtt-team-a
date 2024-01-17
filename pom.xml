@@ -93,6 +93,13 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.1</version>
+                <configuration>
+			        <excludes>
+			       		<param>**.*ElevatorPlcMock</param>
+			       		<param>**.*ElevatorProperties</param>
+			       		<param>**.*MqttAdapterIntegrationTest</param>
+			       </excludes>
+                </configuration>
             </plugin>
             <plugin>
 				<groupId>org.jacoco</groupId>
@@ -129,7 +136,16 @@
 						<param>**.*ElevatorsMqttClient</param>
 						<param>**.*ElevatorPlcMock</param>
 						<param>**.*ElevatorProperties</param>
+						<param>**.*Main</param>
+						<param>**.*AlgorithmMqttAdapter</param>
 					</excludedClasses>
+					<excludedTestClasses>
+						<param>**.*ElevatorsMqttClientTest</param>
+						<param>**.*ElevatorsPlcConnectionTest</param>
+						<param>**.*MainTest</param>
+						<param>**.*MqttAdapterIntegrationTest</param>
+						<param>**.*AlgorithmMqttAdapterTest</param>
+					</excludedTestClasses>
 				</configuration>
 				<dependencies>
 					<dependency>

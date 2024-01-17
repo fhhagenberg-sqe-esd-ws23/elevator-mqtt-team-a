@@ -1,4 +1,4 @@
-package at.fhhagenberg.sqelevator;
+package at.fhhagenberg.sqelevator.mqttadapter;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -14,6 +14,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 import org.junit.jupiter.api.Test;
 
+import at.fhhagenberg.sqelevator.ElevatorProperties;
 import sqelevator.IElevator;
 
 class ElevatorsPlcConnectionTest {
@@ -34,7 +35,7 @@ class ElevatorsPlcConnectionTest {
 	void testConnectMissingRegistry() {
 		ElevatorProperties props = mock(ElevatorProperties.class);
 		when(props.getRmiAddress()).thenReturn("localhost");
-		when(props.getRmiPort()).thenReturn(65535);
+		when(props.getRmiPort()).thenReturn(65534);
 		when(props.getRmiName()).thenReturn("none");
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ElevatorsPlcConnection conn = new ElevatorsPlcConnection(props);
@@ -43,12 +44,12 @@ class ElevatorsPlcConnectionTest {
 		String outputString = output.toString();
 		assertTrue(outputString.contains("Error during registry lookup"));
 	}
-	
+
 	@Test
 	void testConnectSuccessful() throws RemoteException, AlreadyBoundException, NotBoundException {
 		ElevatorProperties props = mock(ElevatorProperties.class);
 		when(props.getRmiAddress()).thenReturn("localhost");
-		when(props.getRmiPort()).thenReturn(65535);
+		when(props.getRmiPort()).thenReturn(65533);
 		when(props.getRmiName()).thenReturn("IElevator");
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ElevatorsPlcConnection conn = new ElevatorsPlcConnection(props);
@@ -68,12 +69,12 @@ class ElevatorsPlcConnectionTest {
 		UnicastRemoteObject.unexportObject(obj, true); // unexport IElevator mock object
 		UnicastRemoteObject.unexportObject(registry, true); // close registry
 	}
-	
+
 	@Test
 	void testConnectNotBound() throws RemoteException, AlreadyBoundException {
 		ElevatorProperties props = mock(ElevatorProperties.class);
 		when(props.getRmiAddress()).thenReturn("localhost");
-		when(props.getRmiPort()).thenReturn(65535);
+		when(props.getRmiPort()).thenReturn(65532);
 		when(props.getRmiName()).thenReturn("IElevator");
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ElevatorsPlcConnection conn = new ElevatorsPlcConnection(props);
@@ -87,7 +88,7 @@ class ElevatorsPlcConnectionTest {
 		// Cleanup
 		UnicastRemoteObject.unexportObject(registry, true); // close registry
 	}
-	
+
 	@Test
 	void testCallFunctionBeforeConnect() {
 		ElevatorProperties props = mock(ElevatorProperties.class);
@@ -96,7 +97,7 @@ class ElevatorsPlcConnectionTest {
 		RuntimeException thrown = assertThrows(RuntimeException.class, () -> conn.getClockTick());
 		assertEquals("Connect method must be successful once before using other methods!", thrown.getMessage());
 	}
-	
+
 	@Test
 	void testConstructorPropertiesNull() {
 		ElevatorProperties props = null;
@@ -104,12 +105,12 @@ class ElevatorsPlcConnectionTest {
 		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> new ElevatorsPlcConnection(props));
 		assertEquals("ElevatorProperties must not be null!", thrown.getMessage());
 	}
-	
+
 	@Test
 	void testCallMethodAfterSuccessfulConnect() throws RemoteException, AlreadyBoundException, NotBoundException {
 		ElevatorProperties props = mock(ElevatorProperties.class);
 		when(props.getRmiAddress()).thenReturn("localhost");
-		when(props.getRmiPort()).thenReturn(65535);
+		when(props.getRmiPort()).thenReturn(65531);
 		when(props.getRmiName()).thenReturn("IElevator");
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ElevatorsPlcConnection conn = new ElevatorsPlcConnection(props);
@@ -129,12 +130,12 @@ class ElevatorsPlcConnectionTest {
 		UnicastRemoteObject.unexportObject(obj, true); // unexport IElevator mock object
 		UnicastRemoteObject.unexportObject(registry, true); // close registry
 	}
-	
+
 	@Test
 	void testCallMethodAfterConnectionLoss() throws RemoteException, AlreadyBoundException, NotBoundException {	
 		ElevatorProperties props = mock(ElevatorProperties.class);
 		when(props.getRmiAddress()).thenReturn("localhost");
-		when(props.getRmiPort()).thenReturn(65535);
+		when(props.getRmiPort()).thenReturn(65530);
 		when(props.getRmiName()).thenReturn("IElevator");
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ElevatorsPlcConnection conn = new ElevatorsPlcConnection(props);
@@ -157,12 +158,12 @@ class ElevatorsPlcConnectionTest {
 		RemoteException thrown = assertThrows(RemoteException.class, () -> conn.getElevatorNum());
 		assertEquals("no such object in table", thrown.getMessage());
 	}
-	
+
 	@Test
 	void testCallMethodAfterReconnect() throws RemoteException, AlreadyBoundException, NotBoundException {	
 		ElevatorProperties props = mock(ElevatorProperties.class);
 		when(props.getRmiAddress()).thenReturn("localhost");
-		when(props.getRmiPort()).thenReturn(65535);
+		when(props.getRmiPort()).thenReturn(65529);
 		when(props.getRmiName()).thenReturn("IElevator");
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		ElevatorsPlcConnection conn = new ElevatorsPlcConnection(props);
@@ -184,6 +185,8 @@ class ElevatorsPlcConnectionTest {
 		
 		// Assert connection loss
 		assertThrows(RemoteException.class, () -> conn.getElevatorNum());
+
+		when(props.getRmiPort()).thenReturn(65528);
 		
 		// Startup server again to allow reconnect
 		registry = LocateRegistry.createRegistry(props.getRmiPort());

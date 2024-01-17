@@ -1,7 +1,10 @@
-package at.fhhagenberg.sqelevator;
+package at.fhhagenberg.sqelevator.mqttadapter;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
+import at.fhhagenberg.sqelevator.ElevatorsMqttClient;
+import at.fhhagenberg.sqelevator.Floor;
 
 /**
  * Class acting as a bridge between a floor and a MQTT client.

@@ -8,11 +8,8 @@ import java.rmi.RemoteException;
 import java.util.concurrent.ExecutionException;
 
 import at.fhhagenberg.sqelevator.Building;
-import at.fhhagenberg.sqelevator.ElevatorPlcMock;
 import at.fhhagenberg.sqelevator.ElevatorProperties;
-import at.fhhagenberg.sqelevator.ElevatorsMqttAdapter;
 import at.fhhagenberg.sqelevator.ElevatorsMqttClient;
-import at.fhhagenberg.sqelevator.ElevatorsPlcConnection;
 import at.fhhagenberg.sqelevator.ExitCommandThread;
 import sqelevator.IElevator;
 

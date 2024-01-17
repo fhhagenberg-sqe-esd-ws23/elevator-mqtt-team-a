@@ -1,10 +1,16 @@
-package at.fhhagenberg.sqelevator;
+package at.fhhagenberg.sqelevator.mqttadapter;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
+
+import at.fhhagenberg.sqelevator.Building;
+import at.fhhagenberg.sqelevator.Elevator;
+import at.fhhagenberg.sqelevator.ElevatorsMqttClient;
+import at.fhhagenberg.sqelevator.ExitCommandThread;
+import at.fhhagenberg.sqelevator.Floor;
 
 /**
  * This class is the main class of the Elevators MQTT Adapter program.
@@ -31,12 +37,12 @@ public class ElevatorsMqttAdapter {
 		Floor[] floors = building.getFloors();
 		updaters = new IUpdater[elevators.length + floors.length];
 		bridges = new IMqttBridge[elevators.length + floors.length];
-		
+
 		for(int i = 0; i < elevators.length; ++i) {
 			updaters[i] = new ElevatorUpdater(elevators[i]);
 			bridges[i] = new ElevatorMqttBridge(elevators[i], mqtt);
 		}
-		
+
 		for(int i = 0; i < floors.length; ++i) {
 			updaters[elevators.length + i] = new FloorUpdater(floors[i]);
 			bridges[elevators.length + i] = new FloorMqttBridge(floors[i], mqtt);
@@ -60,8 +66,14 @@ public class ElevatorsMqttAdapter {
 	 * @param exitThread instance of ExitCommandThread which provides the signal to exit the program
 	 * @param output output stream to write information to
 	 */
-	public void run(ExitCommandThread exitThread, OutputStream output) throws InterruptedException, IOException, ExecutionException {
-		mqtt.subscribeToControlMessages(building.getElevatorCount(), building.getFloorCount());
+	public void run(ExitCommandThread exitThread, OutputStream output) throws InterruptedException, IOException, ExecutionException {		
+		OutputStreamWriter writer = new OutputStreamWriter(output);
+		
+		if(!mqtt.subscribeToControlMessages(building.getElevatorCount(), building.getFloorCount())) {
+			writer.write("Could not subscribe to control messages!\n");
+			return;
+		}
+
 		mqtt.publishNumberOfElevators(building.getElevatorCount());
 		mqtt.publishNumberOfFloors(building.getFloorCount());
 		mqtt.publishFloorHeight(building.floorHeight());
@@ -69,7 +81,6 @@ public class ElevatorsMqttAdapter {
 		stopMqttBridges();
 		startMqttBridges();
 		
-		OutputStreamWriter writer = new OutputStreamWriter(output);
 		writer.write("Started Elevators Mqtt Adapter.\n");
 
 		while(!exitThread.isExitRequest()) {

@@ -1,6 +1,8 @@
-package at.fhhagenberg.sqelevator;
+package at.fhhagenberg.sqelevator.mqttadapter;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayOutputStream;
@@ -14,6 +16,9 @@ import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
 
+import at.fhhagenberg.sqelevator.Building;
+import at.fhhagenberg.sqelevator.ElevatorsMqttClient;
+import at.fhhagenberg.sqelevator.ExitCommandThread;
 import sqelevator.IElevator;
 
 class ElevatorsMqttAdapterTest {
@@ -124,6 +129,10 @@ class ElevatorsMqttAdapterTest {
 		when(plc.getFloorButtonUp(0)).thenReturn(false);
 		when(plc.getFloorButtonDown(1)).thenReturn(false);
 		when(plc.getElevatorDoorStatus(0)).thenReturn(IElevator.ELEVATOR_DOORS_CLOSED);
+        when(mqtt.subscribeToControlMessages(1,2)).thenReturn(true);
+ 
+		
+		
 		Building building = new Building(plc);
 		ElevatorsMqttAdapter adapter = new ElevatorsMqttAdapter(building, mqtt);
 		PipedInputStream input = new PipedInputStream();

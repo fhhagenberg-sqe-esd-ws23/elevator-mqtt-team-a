@@ -32,6 +32,7 @@ public class Elevator {
 	private int weight;
 	private boolean[] servicedFloors;
 	private int target;
+	private boolean alwaysCallPropertyChange = false;
 
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -171,10 +172,15 @@ public class Elevator {
 				&& committedDirection != IElevator.ELEVATOR_DIRECTION_UNCOMMITTED) {
 			throw new IllegalArgumentException("The commited direction must be 0, 1 or 2!");
 		}
-		if(this.committedDirection != committedDirection) {
-			plc.setCommittedDirection(getNumber(), committedDirection);
+		if(alwaysCallPropertyChange || this.committedDirection != committedDirection) {
 			int oldValue = this.committedDirection;
-			this.committedDirection = committedDirection;
+			if(this.committedDirection != committedDirection) {
+				this.committedDirection = committedDirection;
+				plc.setCommittedDirection(getNumber(), committedDirection);
+			}
+			if(alwaysCallPropertyChange) {
+				oldValue = committedDirection -1;
+			}
 			this.pcs.firePropertyChange(COMMITTED_DIRECTION_PROPERTY_NAME, oldValue, committedDirection);			
 		}
 	}
@@ -192,9 +198,12 @@ public class Elevator {
 	 * @param committedDirection the acceleration of the elevator where positive speed is acceleration and negative is deceleration
 	 */
 	public void setAcceleration(int acceleration) {
-		if(this.acceleration != acceleration) {
+		if(alwaysCallPropertyChange || this.acceleration != acceleration) {
 			int oldValue = this.acceleration;
 			this.acceleration = acceleration;
+			if(alwaysCallPropertyChange) {
+				oldValue = acceleration-1;
+			}
 			this.pcs.firePropertyChange(ACCELERATION_PROPERTY_NAME, oldValue, acceleration);				
 		}
 	}
@@ -222,9 +231,13 @@ public class Elevator {
 			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
 		
-		if(this.stopRequests[floor] != stop) {
+		if(alwaysCallPropertyChange || this.stopRequests[floor] != stop) {
 			boolean[] oldValue = Arrays.copyOf(this.stopRequests, this.stopRequests.length);
 			this.stopRequests[floor] = stop;
+			if(alwaysCallPropertyChange) {
+				oldValue = Arrays.copyOf(this.stopRequests, this.stopRequests.length);
+				oldValue[floor] = !oldValue[floor];
+			}
 			this.pcs.firePropertyChange(STOP_REQUESTS_PROPERTY_NAME, oldValue, this.stopRequests);
 		}
 	}
@@ -242,9 +255,12 @@ public class Elevator {
 	 * @param capacity maximum number of passengers
 	 */
 	public void setCapacity(int capacity) {
-		if(this.capacity != capacity) {
+		if(alwaysCallPropertyChange || this.capacity != capacity) {
 			int oldValue = this.capacity;
 			this.capacity = capacity;
+			if(alwaysCallPropertyChange) {
+				oldValue = capacity-1;
+			}
 			this.pcs.firePropertyChange(CAPACITY_PROPERTY_NAME, oldValue, capacity);			
 		}
 	}
@@ -263,13 +279,19 @@ public class Elevator {
 	 */
 	public void setDoorStatus(int doorStatus) {
 		if(doorStatus != IElevator.ELEVATOR_DOORS_OPEN &&
-				doorStatus != IElevator.ELEVATOR_DOORS_CLOSED) {
+				doorStatus != IElevator.ELEVATOR_DOORS_CLOSED &&
+				doorStatus != IElevator.ELEVATOR_DOORS_OPENING &&
+				doorStatus != IElevator.ELEVATOR_DOORS_CLOSING
+				) {
 			throw new IllegalArgumentException("Invalid door status!");
 		}
 		
-		if(this.doorStatus != doorStatus) {
+		if(alwaysCallPropertyChange || this.doorStatus != doorStatus) {
 			int oldValue = this.doorStatus;
 			this.doorStatus = doorStatus;
+			if(alwaysCallPropertyChange) {
+				oldValue = doorStatus-1;
+			}
 			this.pcs.firePropertyChange(DOOR_STATUS_PROPERTY_NAME, oldValue, doorStatus);			
 		}
 	}
@@ -290,9 +312,12 @@ public class Elevator {
 		if (floor < 0 || floor >= numberOfFloors) {
 			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
-		if(this.floor != floor) {
+		if(alwaysCallPropertyChange || this.floor != floor) {
 			int oldValue = this.floor;
 			this.floor = floor;
+			if(alwaysCallPropertyChange) {
+				oldValue = floor-1;
+			}
 			this.pcs.firePropertyChange(FLOOR_PROPERTY_NAME, oldValue, floor);			
 		}
 	}
@@ -313,9 +338,12 @@ public class Elevator {
 		if (position < 0 || position > numberOfFloors * floorHeight) {
 			throw new IllegalArgumentException("Invalid Position!");
 		}
-		if(this.position != position) {
+		if(alwaysCallPropertyChange || this.position != position) {
 			int oldValue = this.position;
 			this.position = position;
+			if(alwaysCallPropertyChange) {
+				oldValue = position-1;
+			}
 			this.pcs.firePropertyChange(POSITION_PROPERTY_NAME, oldValue, position);			
 		}
 	}
@@ -333,9 +361,14 @@ public class Elevator {
 	 * @param speed the speed of the elevator where positive speed is up and negative is down
 	 */
 	public void setSpeed(int speed) {
-		if(this.speed != speed) {
+		//System.out.println("setSpeed");
+		if(alwaysCallPropertyChange || this.speed != speed) {
+			//System.out.println("setSpeed2");
 			int oldValue = this.speed;
 			this.speed = speed;
+			if(alwaysCallPropertyChange) {
+				oldValue = speed -1;
+			}
 			this.pcs.firePropertyChange(SPEED_PROPERTY_NAME, oldValue, speed);			
 		}
 	}
@@ -356,9 +389,12 @@ public class Elevator {
 		if (weight < 0) {
 			throw new IllegalArgumentException("The weight can't be negative!");
 		}
-		if(this.weight != weight) {
+		if(alwaysCallPropertyChange || this.weight != weight) {
 			int oldValue = this.weight;
 			this.weight = weight;
+			if(alwaysCallPropertyChange) {
+				oldValue = weight -1;
+			}
 			this.pcs.firePropertyChange(WEIGHT_PROPERTY_NAME, oldValue, weight);			
 		}
 	}
@@ -387,10 +423,16 @@ public class Elevator {
 			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
 		
-		if(this.servicedFloors[floor] != service) {
-			plc.setServicesFloors(number, floor, service);
+		if(alwaysCallPropertyChange || this.servicedFloors[floor] != service) {
 			boolean[] oldValue = Arrays.copyOf(this.servicedFloors, this.servicedFloors.length);
-			this.servicedFloors[floor] = service;
+			if(this.servicedFloors[floor] != service) {
+				this.servicedFloors[floor] = service;
+				plc.setServicesFloors(number, floor, service);
+			}
+			if(alwaysCallPropertyChange) {
+				oldValue = Arrays.copyOf(this.servicedFloors, this.servicedFloors.length);
+				oldValue[floor] = !oldValue[floor];
+			}
 			this.pcs.firePropertyChange(SERVICED_FLOORS_PROPERTY_NAME, oldValue, this.servicedFloors);	
 		}
 	}
@@ -412,12 +454,21 @@ public class Elevator {
 		if (target < 0 || target >= numberOfFloors) {
 			throw new IllegalArgumentException(INVALID_FLOOR);
 		}
-		if(this.target != target) {
-			plc.setTarget(number, target);
+		if(alwaysCallPropertyChange || this.target != target) {
 			int oldValue = this.target;
-			this.target = target;
+			if(this.target != target) {
+				this.target = target;
+				plc.setTarget(number, target);
+			}
+			if(alwaysCallPropertyChange) {
+				oldValue = target -1;
+			}
 			this.pcs.firePropertyChange(TARGET_PROPERTY_NAME, oldValue, target);			
 		}
+	}
+	
+	public void setAlwaysSetPropertyChange(boolean set) {
+		alwaysCallPropertyChange = set;
 	}
 
 }

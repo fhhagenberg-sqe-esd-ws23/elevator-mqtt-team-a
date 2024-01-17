@@ -1,8 +1,12 @@
-package at.fhhagenberg.sqelevator;
+package at.fhhagenberg.sqelevator.mqttadapter;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.rmi.RemoteException;
+
+import at.fhhagenberg.sqelevator.Elevator;
+import at.fhhagenberg.sqelevator.ElevatorsMqttClient;
+import at.fhhagenberg.sqelevator.IMqttMessageListener;
 
 /**
  * Class acting as a bridge between an elevator and a MQTT client.
@@ -12,7 +16,7 @@ import java.rmi.RemoteException;
  * If the elevator number of the incoming control message matches the associated elevator, the associated elevator is updated accordingly.
  */
 public class ElevatorMqttBridge implements IMqttBridge, PropertyChangeListener, IMqttMessageListener {
-	
+
 	private final Elevator elevator;
 	private final ElevatorsMqttClient mqtt;
 	private boolean started = false;
@@ -36,7 +40,7 @@ public class ElevatorMqttBridge implements IMqttBridge, PropertyChangeListener, 
 		if(evt.getSource() != elevator) {
 			return;
 		}
-		
+
 		switch(evt.getPropertyName()) {
 		case Elevator.COMMITTED_DIRECTION_PROPERTY_NAME:
 			publishCommittedDirection();
@@ -85,7 +89,9 @@ public class ElevatorMqttBridge implements IMqttBridge, PropertyChangeListener, 
 	 */
 	@Override
 	public void setCommittedDirection(int elevator, int direction) {
+		
 		if(started && elevator == this.elevator.getNumber()) {
+			
 			try {
 				this.elevator.setCommittedDirection(direction);
 			} catch (RemoteException e) {
@@ -136,9 +142,10 @@ public class ElevatorMqttBridge implements IMqttBridge, PropertyChangeListener, 
 		if(started) {
 			return;
 		}
-		
+
 		started = true;
 		elevator.addPropertyChangeListener(this);
+		mqtt.addListener(this);
 		publishCommittedDirection();
 		publishAcceleration();
 		publishButtonsPressed();
@@ -158,22 +165,23 @@ public class ElevatorMqttBridge implements IMqttBridge, PropertyChangeListener, 
 	public void stop() {
 		started = false;
 		elevator.removePropertyChangeListener(this);
+		mqtt.removeListener(this);
 	}
-	
+
 	private void publishCommittedDirection() {
 		mqtt.publishDirection(elevator.getNumber(), elevator.getCommittedDirection());		
 	}
-	
+
 	private void publishAcceleration() {
 		mqtt.publishAcceleration(elevator.getNumber(), elevator.getAcceleration());		
 	}
-	
+
 	private void publishButtonsPressed() {
 		for(int i = 0; i < elevator.getNumberOfFloors(); i++) {
 			mqtt.publishButtonPressed(elevator.getNumber(), i, elevator.getStopRequest(i));
 		}
 	}
-	
+
 	private void publishCapacity() {
 		mqtt.publishCapacity(elevator.getNumber(), elevator.getCapacity());		
 	}

@@ -1,4 +1,4 @@
-package at.fhhagenberg.sqelevator;
+package at.fhhagenberg.sqelevator.mqttadapter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import at.fhhagenberg.sqelevator.Floor;
 import sqelevator.IElevator;
 
 @ExtendWith(MockitoExtension.class)
