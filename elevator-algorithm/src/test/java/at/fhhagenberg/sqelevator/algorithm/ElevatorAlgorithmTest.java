@@ -11,7 +11,7 @@ import sqelevator.IElevator;
 
 import org.junit.jupiter.api.Test;
 
-public class ElevatorAlgorithmTest {
+class ElevatorAlgorithmTest {
 
 	
     @Test

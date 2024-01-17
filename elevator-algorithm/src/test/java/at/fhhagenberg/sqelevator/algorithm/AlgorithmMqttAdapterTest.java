@@ -23,7 +23,7 @@ import at.fhhagenberg.sqelevator.ElevatorsMqttClient;
 import sqelevator.IElevator;
 
 @ExtendWith(MockitoExtension.class)
-public class AlgorithmMqttAdapterTest {
+class AlgorithmMqttAdapterTest {
 	@Container
 	HiveMQContainer container = new HiveMQContainer(DockerImageName.parse("hivemq/hivemq-ce:latest"));
 

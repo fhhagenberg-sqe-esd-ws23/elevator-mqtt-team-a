@@ -44,7 +44,7 @@ import at.fhhagenberg.sqelevator.MqttTopicGenerator;
 import sqelevator.IElevator;
 
 @Testcontainers
-public class MqttAdapterIntegrationTest {
+class MqttAdapterIntegrationTest {
 	private final MqttTopicGenerator topics = new MqttTopicGenerator();
 
     @Container

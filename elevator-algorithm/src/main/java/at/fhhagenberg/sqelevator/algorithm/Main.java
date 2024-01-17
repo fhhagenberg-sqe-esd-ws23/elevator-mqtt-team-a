@@ -21,10 +21,10 @@ public class Main {
 	public static void main(String[] args) throws InterruptedException, IOException, ExecutionException {
 		Main main = new Main();
 		ElevatorProperties props = new ElevatorProperties();
-		main.run(args, props, System.in, System.out);
+		main.run(props, System.in, System.out);
 	}
 
-	public void run(String[] args, ElevatorProperties props, InputStream in, OutputStream out) throws IOException, InterruptedException, ExecutionException {
+	public void run( ElevatorProperties props, InputStream in, OutputStream out) throws IOException, InterruptedException, ExecutionException {
 		ElevatorsMqttClient mqtt = new ElevatorsMqttClient(props.getMqttAddress(), props.getMqttPort());
 
 		ExitCommandThread exitThread = new ExitCommandThread(in, props.getExitLine());
@@ -40,22 +40,22 @@ public class Main {
 		mqtt.connect();
 
 		if (!mqtt.subscribe_int(topics.getNumElevatorsTopic(),
-				(args0, intval)->{
-					numElevators = (int)intval;})) {
+				(args0, intval)->
+					numElevators = (int)intval)) {
 			writer.write("num elevator topic subscription failed");
 			return;
 		}
 
 		if (!mqtt.subscribe_int(topics.getNumFloorsTopic(),
-				(args0, intval)->{
-					numFloors = (int)intval;})) {
+				(args0, intval)->
+					numFloors = (int)intval)) {
 			writer.write("num Floors topic subscription failed");
 			return;
 		}
 
 		if (!mqtt.subscribe_int(topics.getFloorHeightTopic(),
-				(args0, intval)->{
-					floorHeight = (int)intval;})) {
+				(args0, intval)->
+					floorHeight = (int)intval)) {
 			writer.write("floor height topic subscription failed");
 			return;
 		}

@@ -44,6 +44,36 @@ class ElevatorsMqttClientTest {
     	mqtt = new ElevatorsMqttClient(container.getHost(), container.getMqttPort());
         mqtt.connect();
     }
+    
+    
+    @Test
+	void testConnectAgain() throws InterruptedException, ExecutionException {    	
+        assertTrue(mqtt.connect());
+        
+        mqtt.publishServicesFloor(0,0,true);
+        mqtt.publishDirectionReceived(0,0);
+        mqtt.publishTargetReceived(0,0);
+        mqtt.publishServicesFloorReceived(0, 0, false);
+        mqtt.publishConnected(false);
+        mqtt.publishNumberOfFloors(0);
+        
+	}
+    
+    
+    @Test
+	void testDisconnectAndTrySubscribeToMessages() throws InterruptedException, ExecutionException{    	
+        mqtt.disconnect();
+        assertFalse(mqtt.subscribeToControlMessages(0, 0));
+	}
+    
+    @Test
+	void testDisconnectAndTrySubscribe() throws InterruptedException, ExecutionException {    	
+        mqtt.disconnect();
+        assertFalse(mqtt.subscribe_int(	topics.getSetTargetTopic(0),
+				(args, intval)->{},
+				0));
+	}
+    
 
     @Test
     @Timeout(value = 1, unit = TimeUnit.MINUTES)
@@ -348,7 +378,12 @@ class ElevatorsMqttClientTest {
     
     @AfterEach
     void cleanUp() throws InterruptedException, ExecutionException {
-    	mqtt.disconnect();
+    	
+    	if(mqtt.isConnected())
+    	{
+        	mqtt.disconnect();
+    	}
+
     	testClient.disconnect();
     }
 }

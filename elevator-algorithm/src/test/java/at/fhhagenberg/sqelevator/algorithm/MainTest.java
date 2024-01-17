@@ -18,7 +18,7 @@ import at.fhhagenberg.sqelevator.ElevatorProperties;
 import at.fhhagenberg.sqelevator.ElevatorsMqttClient;
 
 
-public class MainTest {	
+class MainTest {	
 	
     private void waitUntilAssertsTrue(BooleanSupplier func, int tryTimes, int waitBetweenTriesMs) throws InterruptedException {    	
     	boolean result = false;
@@ -53,7 +53,7 @@ public class MainTest {
 			    @Override
 			    public void run() {
 					try {
-						main.run(null, props, input, output);
+						main.run( props, input, output);
 					} catch (InterruptedException | IOException | ExecutionException e) {
 						throw new IllegalArgumentException("exception");
 					}
@@ -95,7 +95,7 @@ public class MainTest {
 			    @Override
 			    public void run() {
 					try {
-						main.run(null, props, input, output);
+						main.run(props, input, output);
 					} catch (InterruptedException | IOException | ExecutionException e) {
 						throw new IllegalArgumentException("exception");
 					}

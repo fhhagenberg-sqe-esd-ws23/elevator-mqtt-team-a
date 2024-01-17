@@ -93,8 +93,8 @@ public class Elevator {
 		
 		stopRequests = new boolean[numberOfFloors];
 		
-		for(int floor = 0; floor < numberOfFloors; ++floor) {
-			this.setStopRequest(floor, plc.getElevatorButton(number, floor));
+		for(int floorIdx = 0; floorIdx < numberOfFloors; ++floorIdx) {
+			this.setStopRequest(floorIdx, plc.getElevatorButton(number, floorIdx));
 		}
 		
 		this.setCapacity(plc.getElevatorCapacity(number));
@@ -106,8 +106,8 @@ public class Elevator {
 
 		servicedFloors = new boolean[numberOfFloors];
 
-		for(int floor = 0; floor < numberOfFloors; ++floor) {
-			this.setServicesFloor(floor, plc.getServicesFloors(number, floor));
+		for(int floorIdx = 0; floorIdx < numberOfFloors; ++floorIdx) {
+			this.setServicesFloor(floorIdx, plc.getServicesFloors(number, floorIdx));
 		}
 		
 		this.setTarget(plc.getTarget(number));
@@ -361,9 +361,7 @@ public class Elevator {
 	 * @param speed the speed of the elevator where positive speed is up and negative is down
 	 */
 	public void setSpeed(int speed) {
-		//System.out.println("setSpeed");
 		if(alwaysCallPropertyChange || this.speed != speed) {
-			//System.out.println("setSpeed2");
 			int oldValue = this.speed;
 			this.speed = speed;
 			if(alwaysCallPropertyChange) {

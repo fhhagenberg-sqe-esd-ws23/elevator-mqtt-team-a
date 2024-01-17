@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(MockitoExtension.class)
-public class FloorTest {
+class FloorTest {
 	
 	@Test
 	void testFloorButtonDownPressed_FloorButtonUpNotPressed() throws RemoteException
