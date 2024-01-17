@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: read
+      contents: write
       issues: read
       checks: write
       pull-requests: write
@@ -43,9 +43,23 @@ jobs:
       if: always()
       with:
         files: |
-          elevator-algorithm/target/surefire-reports/*.xml |
-          elevator-library/target/surefire-reports/*.xml |
+          elevator-algorithm/target/surefire-reports/*.xml
+          elevator-library/target/surefire-reports/*.xml
           elevator-mqttadapter/target/surefire-reports/*.xml
+    - name: Upload artifacts to Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          elevator-algorithm/target/mqtt-elevator-team-a-algorithm-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+          elevator-mqttadapter/target/mqtt-elevator-team-a-mqttadapter-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+    - name: Upload artifacts to job
+      uses: actions/upload-artifact@v4
+      with:
+        name: my-artifact
+        path: |
+          elevator-algorithm/target/mqtt-elevator-team-a-algorithm-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+          elevator-mqttadapter/target/mqtt-elevator-team-a-mqttadapter-0.0.1-SNAPSHOT-jar-with-dependencies.jar
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     # - name: Update dependency graph
