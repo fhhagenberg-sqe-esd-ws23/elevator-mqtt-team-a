@@ -32,7 +32,7 @@ jobs:
     - name: Build with Maven
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-      run: mvn -B package -DskipTests -Dmaven.test.skip=true
+      run: mvn -B package --file pom.xml -DskipTests -Dmaven.test.skip=true
     - name: Upload artifacts to Release
       uses: softprops/action-gh-release@v1
       with:
